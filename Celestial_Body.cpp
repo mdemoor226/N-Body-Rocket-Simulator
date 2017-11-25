@@ -13,7 +13,7 @@
 
 #include "TrackingSystem.h"
 #include <cfloat>
-//#include <pthread>
+#include <pthread.h>
 
 using namespace std;
 
@@ -186,12 +186,29 @@ vector<Attributes>& operator*(const double C, vector<Attributes> &One){
     return One;
 }
 
+void* Interface(void *User){
+	double *UI = (double*)User;
+	string IN;
+	while(*UI != -1){
+		cin >> IN;
+		if(str_lower(IN) == "abort"){
+			*UI = DBL_MAX;
+			cout << "Aborted" << endl;
+			break;
+		}
+		if(str_lower(IN) == "view") cout << "Current sim time: " << *UI << " seconds " << endl;
+	}
+	
+	pthread_exit(NULL);
+}
+
 //This function is large. The goal was to keep from having to pass as many vector references as possible in order to speed up the simulation
 //as much as possible. Because of this, some functions were combined together in the two main simulation loops (pre and post Rocket Launch).
 void Celestial_Body::Simulate_Motion(double Time, double h, double hmax, double hmin, double e, double Wait){
 //Simulation parameter declarations and instantiations//
 vector<Attributes> K1, K1Copy, K2, K2Copy, K3, K3Copy, K4, K4Copy, K5, K5Copy, K6, Input, Result, Correction;
 vector<Attributes> Tracker = Celestial_Vec->ObjectTracker;
+vector<CelestialPtr> Temp = Celestial_Vec->Celestial_Bodies;
 double c[24]; c[0] = 0.25; c[1] = 3.0/32.0; c[2] = 9.0/32.0; c[3] = 1932.0/2197.0;
 c[4]= 7200.0/2197.0; c[5] = 7296.0/2197.0; c[6] = 439.0/216.0; c[7] = 8.0;
 c[8] = 3680.0/513.0; c[9] = 845.0/4104.0; c[10] = 8.0/27.0; c[11] = 2.0;
@@ -208,6 +225,7 @@ cout << "Initial Values for Objects\n";
 Display_Objects();
 cout << endl;
 
+cout << "To view current sim time enter 'View'. To abort simulation enter 'Abort'." << endl;
 double t = 0.0;
 cout << "Simulating..." << endl;
 collision(t, Tracker);//Check to see if any object starts inside another object//
@@ -249,7 +267,9 @@ if(Celestial_Vec->get_Rocket(0) && !Celestial_Vec->get_Rocket(1)){
 }
 
 //Create second thread to allow user to stop simulation at will//
-//And to display current time value at will//
+pthread_t UI;
+double* Abort = &t;
+pthread_create(&UI, NULL, Interface, (void*)Abort);
 
 //1st Simulation Loop//
 while(t<Wait){//This code cannot be parallelized//
@@ -472,12 +492,21 @@ while(t<Time){
            i++;
     } 
 }
+if(t == DBL_MAX) Celestial_Vec->Celestial_Bodies = Temp;
+else{
+	Celestial_Vec->ObjectTracker.clear();
+	Celestial_Vec->ObjectTracker = Tracker;
+	update_attributes();
+	cout << "Final Simulation Result:" << endl;
+	Display_Objects();
+	cout << "Enter anything to continue." << endl;
+}
 
-Celestial_Vec->ObjectTracker.clear();
-Celestial_Vec->ObjectTracker = Tracker;
-update_attributes();
-cout << "Final Simulation Result:" << endl;
-Display_Objects();
+//Release other thread
+t = -1;
+//Join with other thread//
+if(pthread_join(UI, NULL) != 0) cout << "Error, unable to rejoin with UI thread." << endl;
+
 }
 
 double Celestial_Body::Get_R(const vector<Attributes>& Correction, const double h){

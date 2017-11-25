@@ -23,7 +23,7 @@ class Celestial_Body{friend class Celestial;
         void display_Object() const;
         void Final_Sim(double,double,double,double,double,double,std::string);
         void Simulate_Motion(double,double,double,double,double,double);
-        
+
         //Some Gets//
         Attributes get_attributes() const;                       
         std::string get_Name() const;
@@ -47,7 +47,8 @@ class Celestial_Body{friend class Celestial;
         double Distance_Calc(const double,const double,const double);
         double Get_R(const std::vector<Attributes>&, const double);
         void collision(const double, std::vector<Attributes>&);
-        Attributes Momentum(Attributes, Attributes); 
+        Attributes Momentum(Attributes, Attributes);
+
         //Data Members//
         Celestial *Celestial_Vec;        
         std::string Name;
