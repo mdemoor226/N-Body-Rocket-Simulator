@@ -109,7 +109,8 @@ struct Sim_Param{
     double h;
     double hmin;
     double hmax;
-    double e;   
+    double e;
+    double Wait;
 };
 
 //Input verification functions//

@@ -21,8 +21,8 @@ class Celestial_Body{friend class Celestial;
         Celestial_Body(const std::string, const float, const Attributes, const float, Celestial*);             
         void Display_Objects() const;
         void display_Object() const;
-        void Simulate_Motion(double,double,double,double,double);
-        //void Run_Simulation(double,double,double,double,double);
+        void Final_Sim(double,double,double,double,double,double,std::string);
+        void Simulate_Motion(double,double,double,double,double,double);
         
         //Some Gets//
         Attributes get_attributes() const;                       
@@ -54,15 +54,12 @@ class Celestial_Body{friend class Celestial;
         Attributes Values;
         std::string Status;//Change to bool//
         float Mass;
-        float Radius;  
+        float Radius; 
+        //Initial Data Members//
+        Attributes Start;
+        float S_Mass;
+        float S_Radius;
 };
 
 
 #endif /* TRACKINGSYSTEM_H */
-//Notes for later:
-//Create a stopping thread for simulations//
-//Edit the Celestial Simulate function. Create default simulation parameters//
-//Fix constructor for Celestial_Body//
-//Comment out Celestial.cpp code//
-//Remove some unnecessary test code in Sub_Celestial_Body.cpp//
-//Change is_collision to collision//

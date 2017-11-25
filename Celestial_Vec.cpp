@@ -17,49 +17,173 @@ void Celestial::Change_Settings(){
     Orbit_Gen.Set_Defaults();
 }
 
-void Celestial::Set_Parameters(){
+int Celestial::Set_Parameters(){
     string IN;
+    double Time, h, hmax, hmin, e, Wait;
     cout << "Specify the default time length for simulations\n";
     IN = str_lower(verify_simdouble());
     if(IN == "cancel"){
         cout << "Canceled" << endl;
-        return;
+        return -1;
     }
-    Default.Time = convert(IN);
+    Time = convert(IN);
     
     cout << "Specify the default initial time step for simulations\n";
     IN = str_lower(verify_simdouble());
     if(IN == "cancel"){
         cout << "Canceled" << endl;
-        return;
+        return -1;
     }    
-    Default.h = convert(IN);
+    h = convert(IN);
     
     cout << "Specify the default max time step for simulations\n";
     IN = str_lower(verify_simdouble());
     if(IN == "cancel"){
         cout << "Canceled" << endl;
-        return;
+        return -1;
     }    
-    Default.hmax = convert(IN);
+    hmax = convert(IN);
     
     cout << "Specify the default min time step for simulations\n";
     IN = str_lower(verify_simdouble());
     if(IN == "cancel"){
         cout << "Canceled" << endl;
-        return;
+        return -1;
     }
-    Default.hmin = convert(IN);
+    hmin = convert(IN);
     
     cout << "Specify the default error tolerance for simulations\n";
     IN = str_lower(verify_simdouble());
     if(IN == "cancel"){
         cout << "Canceled" << endl;
-        return;
+        return -1;
     }    
-    Default.e = convert(IN);
+    e = convert(IN);
+ 
+    //Check to see if rocket launch conditions are valid//
+    if(Ship.Exist && !Ship.Launched){
+        cout << "Please specify the length in time to wait for the rocket launch.\n";
+        while(true){
+            IN = verify_simdouble();
+            if(str_lower(IN) == "cancel"){
+                cout << "Canceled" << endl;
+                return -1;
+            }
+            if(convert(IN) <= Time)break;//Needs verification
+            cout << "Error, wait time must be less than simulation time. Sim time: " << Time << endl;
+        }
+        Wait = convert(IN);
+    }
+    else Wait = 0.0;
+    
+    Default.Time = Time;
+    Default.h = h;
+    Default.hmax = hmax;
+    Default.hmin = hmin;
+    Default.e = e;
+    Default.Wait = Wait;
+    
+    //Update Rocket Paramters//
+    Ship.Valid = true;
     
     cout << "Done" << endl;
+    return 0;
+}
+
+int Celestial::add_Rocket(Attributes &Celestial, float &Mass, float &Radius){
+    CelestialPtr Launch;
+    //Check to see if launch planet currently exists and is not destroyed
+    while(true){
+        bool exist = false;
+        for(CelestialPtr Planet : Celestial_Bodies){
+            if(Planet->Name == Ship.Launch && Planet->Status == "Intact"){
+                Launch = Planet;
+                exist = true;
+                break;
+            }
+        }
+        if(exist)break;
+        cout << "Error, Launch planet either doesn't exist or was destroyed in a simulation. Please specify a nem one." << endl;
+        cin >> Ship.Launch;
+    }
+    
+    string IN;
+    //Receive Mass and Radius of Rocket from user
+    cout << "\nPlease enter Mass value for the Rocket.\n";
+    while(true){
+        IN = verify_double();
+        if(str_lower(IN) == "done" || 0 < convert(IN))break;
+        cout << "Invalid value. Enter a positive mass value" << endl;
+    }
+    if(str_lower(IN) == "done")return 1;
+    Mass = convert(IN);
+    
+    cout << "\nPlease enter Radius value for the Rocket.\n";
+    while(true){
+        IN = verify_double();
+        if(str_lower(IN) == "done" || 0 < convert(IN))break;
+        cout << "Invalid value. Enter a positive radius value\n";
+    }
+    if(str_lower(IN) == "done")return 1; 
+    Radius = convert(IN);   
+    
+    float phi, theta;
+    //Receive input spherical angles from user//This might have to change depending on how Scott receives launch angles from user//
+    cout << "Please enter the launch angles that will determine the Rocket's position on the Launch Planet\nLaunch angles consist of the two spherical angles "
+            "phi(from the x-z plane to the y-axis) and theta(the x-z plane).\n";
+    cout << "Please enter an angle for theta.\n";    
+    IN = verify_pointdouble();
+    if(str_lower(IN) == "done")return 1; 
+    theta = convert(IN);
+    if(0 <= theta) theta = ((int)theta % 360) + (theta - (int)theta);
+    else theta = ((int)theta % 360) - (theta - (int)theta);
+    theta = 2*pi*(theta/360.0);     
+    
+    cout << "Please enter an angle for phi.\n";
+    IN = verify_pointdouble();
+    if(str_lower(IN) == "done")return 1; 
+    phi = convert(IN);
+    if(0 <= phi) phi = ((int)phi % 360) + (phi - (int)phi);
+    else phi = ((int)phi % 360) - (phi - (int)phi);
+    phi = 2*pi*(phi/360.0);  
+    
+    //Receive Launch Speed from user
+    double Speed;
+    cout << "Please enter the launch speed of the rocket. (m/s)\n";
+    while(true){
+        IN = verify_double();
+        if(str_lower(IN) == "done" || 0 <= convert(IN))break;
+        cout << "Invalid value. Enter a nonnegative speed value\n";
+    }
+    if(str_lower(IN) == "done")return 1; 
+    Speed = convert(IN);
+    
+    //Translate spherical angles into a launch position on launch planet//
+    double r = Launch->Radius + Radius + 1;//Plus Radius of Rocket to avoid colliding with launch planet at start of simulation//Needs verification
+    double x = r*cos(phi)*cos(theta);
+    double z = -r*cos(phi)*sin(theta);
+    double y = r*sin(phi);
+    
+    Celestial.Rx = Launch->Values.Rx + x;
+    Celestial.Ry = Launch->Values.Ry + y;
+    Celestial.Rz = Launch->Values.Rz + z;
+    
+    //Translate Launch Speed into launch velocity//
+    double vx = Speed*cos(phi)*cos(theta);
+    double vy = Speed*sin(phi);
+    double vz = -Speed*cos(phi)*sin(theta);
+    
+    Celestial.Vx = Launch->Values.Vx + vx;
+    Celestial.Vy = Launch->Values.Vy + vy;
+    Celestial.Vz = Launch->Values.Vz + vz;
+
+    //Set Rocket Statuses
+    Ship.Exist = true;
+    Ship.Launched = false;
+    if(Ship.Valid)Ship.Valid = false;
+    else Ship.Valid = true;
+    
+    return 0;
 }
 
 //This code still needs to be commented out
@@ -70,33 +194,38 @@ void Celestial::Add_Object(Celestial* Sim){
     float Mass, Radius;
     cout << "\nEnter 'Done' when you're done entering objects. Any object that isn't completely specified will not be added." << endl;
     while(true){
-        cout << "Objects Added: " << Count << "\n";        
-        cout << "Please enter object name.\n";
-        cin >> Name;
+        cout << "Objects Added: " << Count << "\n";         
+        while(true){       
+            cout << "Please enter object name.\n";
+            cin >> Name;
+            if(str_lower(Name) == "done")break;            
+            if(str_lower(Name) == "rocket"){
+                Name = str_lower(Name);
+                Name[0] = 'R';
+            }
+            
+            //Test whether object currently exists already or not//
+            bool exist = false;
+            for(CelestialPtr Object : Celestial_Bodies){
+                if(Object->get_Name() == Name){
+                    exist = true;
+                    break;
+                }                
+            }
+            if(!exist)break;
+            cout << "Error, object already exists. If it was destroyed in a simulation remove it first and try again." << endl;
+        }
         if(str_lower(Name) == "done")break;
-
-        bool exist = false;
-        //Test whether object currently exists already or not//
-        for(CelestialPtr Object : Celestial_Bodies){
-            if(Object->get_Name() == IN){
-                exist = true;
-                break;
-            }                
-        }
-        if(exist){
-            cout << "Error, object already exists.\n";
-            break;
-        }
-
+        
         IN = "no";
-        if(!Celestial_Bodies.empty()){
+        if(!Celestial_Bodies.empty() && Name != "Rocket"){
             cout << "Would you like to launch the Orbit Customizer? (Yes/No)\n";
             IN = yes_no();
         }
-        if(IN == "yes"){
-            if(Orbit_Gen.Rand_Orbit_Gen(&Celestial, Mass, Radius, Celestial_Bodies, Name))
-                break;
-            cout << endl;
+        if(IN == "yes" || Name == "Rocket"){//This code needs future updating
+            if(Name == "Rocket"){if(add_Rocket(Celestial, Mass, Radius))break;}
+            else if(Orbit_Gen.Rand_Orbit_Gen(&Celestial, Mass, Radius, Celestial_Bodies, Name))break;//Count--;
+            else cout << endl;
         }
         else{
             cout << "\nPlease enter Mass value.\n";
@@ -144,14 +273,17 @@ void Celestial::Add_Object(Celestial* Sim){
                 if(str_lower(IN) == "done" || 0 < convert(IN))break;
                 cout << "Invalid value. Enter a positive radius value\n";
             }
-            if(str_lower(IN) == "done")
-                break; 
+            if(str_lower(IN) == "done")break; 
             Radius = convert(IN);
         }
         Celestial_Bodies.emplace_back(new Celestial_Body(Name, Mass, Celestial, Radius, Sim));
         Count++;
     }  
     cout << "Ok, what now?" << endl;
+}
+
+void Celestial::Final_Sim(const string Target){
+    Celestial_Bodies[0]->Final_Sim(Default.Time, Default.h, Default.hmax, Default.hmin, Default.e, Default.Wait, Target);
 }
 
 void Celestial::Simulate(){
@@ -161,56 +293,82 @@ void Celestial::Simulate(){
         if(Default.Time != -1){//Default simulation parameters have been specified//
             cout << "Would you like to use the default simulation parameters?\n";
             if(yes_no() == "yes"){
-                Celestial_Bodies[0]->Simulate_Motion(Default.Time, Default.h, Default.hmax, Default.hmin, Default.e);
-                return;
+                if(Ship.Valid){//Default parameters are valid//
+                    Celestial_Bodies[0]->Simulate_Motion(Default.Time, Default.h, Default.hmax, Default.hmin, Default.e, Default.Wait);
+                    return;
+                }
+                else{//Default parameters are not valid//
+                    cout << "Default parameters are out of date. Would you like to specify new ones?\n";//Might change later on//
+                    if(yes_no() == "yes"){
+                        if(Set_Parameters() == 0){
+                            Celestial_Bodies[0]->Simulate_Motion(Default.Time, Default.h, Default.hmax, Default.hmin, Default.e, Default.Wait);
+                            return;
+                        }
+                    }
+                }
             }
-        }
-        
-        double Time, h, hmax, hmin, e;
-        string T, H, Hmax, Hmin, E;
-        
+        }       
+        double Time, h, hmax, hmin, e, Wait;
+        string IN;
+
         cout << "Enter 'Cancel' if you would like to cancel the simulation setup.\n";
         cout << "Please enter the time length (in seconds) of the simulation.\n";;
-        T = verify_simdouble();
-        if(str_lower(T) == "cancel"){
+        IN = verify_simdouble();
+        if(str_lower(IN) == "cancel"){
             cout << "Canceled, what now?" << endl;  
             return;
         }
-        Time = convert(T);
+        Time = convert(IN);
 
         cout << "Please enter the initial time step (in seconds) for the simulation.\n";
-        H = verify_simdouble();
-        if(str_lower(H) == "cancel"){
+        IN = verify_simdouble();
+        if(str_lower(IN) == "cancel"){
             cout << "Canceled, what now?" << endl;  
             return;
         }
-        h = convert(H);        
+        h = convert(IN);        
 
         cout << "Please enter the max time step (in seconds) for the simulation.\n";
-        Hmax = verify_simdouble();
-        if(str_lower(Hmax) == "cancel"){
+        IN = verify_simdouble();
+        if(str_lower(IN) == "cancel"){
             cout << "Canceled, what now?" << endl;  
             return;
         }
-        hmax = convert(Hmax);
+        hmax = convert(IN);
 
         cout << "Please enter the min time step (in seconds) for the simulation.\n";
-        Hmin = verify_simdouble();
-        if(str_lower(Hmin) == "cancel"){
+        IN = verify_simdouble();
+        if(str_lower(IN) == "cancel"){
             cout << "Canceled, what now?" << endl;  
             return;
         }
-        hmin = convert(Hmin);
+        hmin = convert(IN);
 
         cout << "Please enter the error tolerance for the simulation.\n";
-        E = verify_simdouble();
-        if(str_lower(E) == "cancel"){
+        IN = verify_simdouble();
+        if(str_lower(IN) == "cancel"){
             cout << "Canceled, what now?" << endl;  
             return;
         }
-        e = convert(E);        
-
-        Celestial_Bodies[0]->Simulate_Motion(Time,h,hmax,hmin,e);  
+        e = convert(IN);
+        
+        //Check to see if a rocket has been specified//
+        if(Ship.Exist && !Ship.Launched){
+            cout << "Please specify the length in time to wait for the rocket launch.\n";
+            while(true){
+                IN = verify_simdouble();
+                if(str_lower(IN) == "cancel"){
+                    cout << "Canceled" << endl;
+                    return;
+                }
+                if(convert(IN) <= Time)break;//Needs verification
+                cout << "Error, wait time must be less than simulation time. Sim time: " << Time << endl;
+            }
+            Wait = convert(IN);
+        }
+        else Wait = 0.0;
+        
+        Celestial_Bodies[0]->Simulate_Motion(Time,h,hmax,hmin,e,Wait);         
     }    
 }
 
@@ -227,6 +385,7 @@ void Celestial::View_Object() const{
     string Name;
     cout << "Enter the name of the Celestial Body you would like to display." << endl;
     cin >> Name;
+    if(str_lower(Name) == "rocket") Name[0] = 'R';
     bool Control = true;
     for(CelestialPtr I : Celestial_Bodies){
         if(Name == I->get_Name()){
@@ -239,7 +398,47 @@ void Celestial::View_Object() const{
         cout << "Sorry, Celestial Body not found" << endl;
 }
 
+void Celestial::View_Start_Objects() const{
+    if(!Celestial_Bodies.empty()){
+        cout << "Initial start values for each object. (Including the destroyed ones)\n";
+        for(CelestialPtr Object : Celestial_Bodies){
+            cout << "////////////////////////////////////////////////////////" << endl;
+            cout << "Currently " << Object->Status << endl;
+            Object->print_attributes(Object->Start, Object->Name, Object->S_Mass, Object->S_Radius);
+        }
+        cout << "////////////////////////////////////////////////////////" << endl << endl; 
+    }
+}
+
 string Celestial::get_name() const{ return Sim_Name;}
+
+string Celestial::get_Launch_Planet() const{ return Ship.Launch;}
+
+Sim_Param Celestial::get_Parameters() const{ return Default;}
+
+bool Celestial::get_Rocket(const int Code) const{
+    switch(Code){
+        case 0: return Ship.Exist;
+        case 1: return Ship.Launched;
+        case 2: return Ship.Valid;
+        default: cout << "Error, invalid return code for get_Rocket function." << endl;
+    }
+}
+
+void Celestial::set_Rocket(const int Code, const bool Status){
+    switch(Code){
+        case 0: 
+            Ship.Exist = Status;
+            break;
+        case 1: 
+            Ship.Launched = Status;
+            break;
+        case 2: 
+            Ship.Valid = Status;
+            break;
+        default: cout << "Error, invalid set code for Set_Rocket function." << endl;
+    }    
+}
 
 void Celestial::Remove_Object(){
     if(Celestial_Bodies.empty())
@@ -247,19 +446,24 @@ void Celestial::Remove_Object(){
     else{
         string Name;
         cout << "Enter the name of the object you would like to remove." << endl;
-        cin >> Name;
-        bool Control = true;
+        cin >> Name;      
+        bool Fake = true;
         int Count = 0;
         for(CelestialPtr I : Celestial_Bodies){
             if(Name == I->get_Name()){
+                if(Name == "Rocket"){
+                    Ship.Exist = false;
+                    Ship.Launched = false;
+                    Ship.Valid = false;//Needs verification
+                }                  
                 I->Remove();              
                 Celestial_Bodies.erase(Celestial_Bodies.begin() + Count);
-                Control = false;
+                Fake = false;
                 break;
             }
             Count++;          
         }
-        if(Control)
+        if(Fake)
             cout << "Object does not exist." << endl;
         else{
             //Decrement Celestial IDs of each object after 'Count' and decrease SpaceCount by 1//
@@ -270,105 +474,225 @@ void Celestial::Remove_Object(){
     }
 }
 
+int Celestial::alter_Rocket(){
+    cout << "Would you like to reposition the Rocket on its launch planet?\n"; 
+    if(yes_no() == "yes"){
+        CelestialPtr Launch;
+        CelestialPtr Rocket;
+        //Check to see if launch planet currently exists and is not destroyed
+        while(true){
+            bool exist = false;
+            for(CelestialPtr Planet : Celestial_Bodies){
+                if(Planet->Name == Ship.Launch && Planet->Status == "Intact"){
+                    Launch = Planet;
+                    exist = true;
+                    break;
+                }
+            }
+            if(exist)break;
+            cout << "Error, Launch planet either doesn't exist or was destroyed in a simulation. Please specify a new one." << endl;
+            cin >> Ship.Launch;
+        }
+        
+        //Get pointer to Rocket from Celestial_Bodies vector//
+        for(CelestialPtr ship : Celestial_Bodies){
+            if(ship->Name == "Rocket"){
+                Rocket = ship;
+                break;
+            }
+        }
+        
+        string IN;
+        //Receive Mass and Radius of Rocket from user
+        cout << "\nPlease enter Mass value for the Rocket.\n";
+        while(true){
+            IN = verify_double();
+            if(str_lower(IN) == "cancel" || 0 < convert(IN))break;
+            cout << "Invalid value. Enter a positive mass value" << endl;
+        }
+        if(str_lower(IN) == "cancel")return 1;
+        Rocket->Mass = convert(IN);
+
+        cout << "\nPlease enter Radius value for the Rocket.\n";
+        while(true){
+            IN = verify_double();
+            if(str_lower(IN) == "cancel" || 0 < convert(IN))break;
+            cout << "Invalid value. Enter a positive radius value\n";
+        }
+        if(str_lower(IN) == "cancel")return 1; 
+        Rocket->Radius = convert(IN);   
+
+        float phi, theta;
+        //Receive input spherical angles from user//This might have to change depending on how Scott receives launch angles from user//
+        cout << "Please enter the launch angles that will determine the Rocket's position on the Launch Planet\nLaunch angles consist of the two spherical angles "
+                "phi(from the x-z plane to the y-axis) and theta(the x-z plane).\n";
+        cout << "Please enter an angle for theta.\n";
+        IN = verify_altdouble();
+        if(str_lower(IN) == "cancel")return 1;
+        theta = convert(IN);
+        if(0 <= theta) theta = ((int)theta % 360) + (theta - (int)theta);
+        else theta = ((int)theta % 360) - (theta - (int)theta);
+        theta = 2*pi*(theta/360.0);     
+
+        cout << "Please enter an angle for phi.\n";
+        IN = verify_altdouble();
+        if(str_lower(IN) == "cancel")return 1;
+        phi = convert(IN);
+        if(0 <= phi) phi = ((int)phi % 360) + (phi - (int)phi);
+        else phi = ((int)phi % 360) - (phi - (int)phi);
+        phi = 2*pi*(phi/360.0);  
+
+        //Receive Launch Speed from user
+        double Speed;
+        cout << "Please enter the launch speed of the rocket. (m/s)\n";
+        while(true){
+            IN = verify_double();
+            if(str_lower(IN) == "cancel" || 0 <= convert(IN))break;
+            cout << "Invalid value. Enter a nonnegative speed value\n";
+        }
+        if(str_lower(IN) == "cancel")return 1; 
+        Speed = convert(IN);
+
+        //Translate spherical angles into a launch position on launch planet
+        double r = Launch->Radius + Rocket->Radius + 1;
+        double x = r*cos(phi)*cos(theta);
+        double z = -r*cos(phi)*sin(theta);
+        double y = r*sin(phi);
+
+        Rocket->Values.Rx = Launch->Values.Rx + x;
+        Rocket->Values.Ry = Launch->Values.Ry + y;
+        Rocket->Values.Rz = Launch->Values.Rz + z;
+
+        //Translate Launch Speed into launch velocity//
+        double vx = Speed*cos(phi)*cos(theta);
+        double vy = Speed*sin(phi);
+        double vz = -Speed*cos(phi)*sin(theta);
+
+        Rocket->Values.Vx = Launch->Values.Vx + vx;
+        Rocket->Values.Vy = Launch->Values.Vy + vy;
+        Rocket->Values.Vz = Launch->Values.Vz + vz;
+
+        //Update ObjectTracker
+        int Count = 0;
+        for(Attributes Tracker : ObjectTracker){
+            if(Tracker.ID == Rocket->Values.ID){
+                ObjectTracker[Count] = Rocket->Values;
+                break;                
+            }
+            Count++;
+        }   
+
+        //Make necessary changes to Rocket Launch Parameters
+        if(Ship.Valid){
+            if(Ship.Launched){
+                Ship.Valid = false;
+                Ship.Launched = false;
+            }
+        }
+        else{
+            if(Ship.Launched){
+                Ship.Valid = true;
+                Ship.Launched = false;
+            }
+        }
+        
+        cout << "Done" << endl;
+        return 1;
+    }
+    return 0;
+}
+
 void Celestial::Alter_Object(){
     if(Celestial_Bodies.empty())
         cout << "There is nothing to alter. Add some objects first." << endl;
     else{
-        string Name;
-        string newName;                
+        string Name, newName;                
         cout << "Please enter the name of the object you would like to alter." << endl;
         cin >> Name;
+        if(Name == "Rocket" && Ship.Exist){
+            if(alter_Rocket())
+                return;
+        }
         int Pos = get_position(Name);
         if(0 <= Pos){
             string Entry;
-            double Rad;
-            double Mss;
-            bool Cancel = false;
+            double Rad, Mss;
             bool name = false;
             bool mass = false;
             bool radius = false;
             Attributes New = ObjectTracker[Pos];
-            cout << "If you would like to cancel any changes enter 'cancel'." << endl;
-            cout << "If you are done making changes enter 'done'" << endl;
+            cout << "If you would like to cancel any changes enter 'cancel'. If you are done making changes enter 'done'\n";
             while(true){
-                cout << "Which attributes from " << Name << " would you like to change? (Rx, Ry, Rz, Vx, Vy, Vz, Name, Mass, Radius)" << endl;
+                cout << "Which attributes from " << Name << " would you like to change? (Rx, Ry, Rz, Vx, Vy, Vz, Name, Mass, Radius)\n";
                 while(true){
                     cin >> Entry;
                     Entry = str_lower(Entry);
-                    if(Entry == "name" || Entry == "rx" || Entry == "ry" || Entry == "rz" || Entry == "vx" || Entry == "vy" || Entry == "vz")
-                        break;
-                    if(Entry == "mass" || Entry == "radius" || Entry == "cancel" || Entry == "done")
-                        break;
-                    else
-                        cout << "Invalid entry. Try again." << endl;
+                    if(Entry == "name" || Entry == "rx" || Entry == "ry" || Entry == "rz" || Entry == "vx" || Entry == "vy" || Entry == "vz")break;
+                    if(Entry == "mass" || Entry == "radius" || Entry == "cancel" || Entry == "done")break;
+                    else cout << "Invalid entry. Try again." << endl;
                 }    
-                if(Entry == "done")
-                    break;
+                if(Entry == "done")break;
                 else if(Entry == "cancel"){
-                    Cancel = true;
-                    break;
+                    cout << "Canceled. Ok what now?" << endl; 
+                    return;
+                }
+                else if(Entry == "name"){
+                    if(Name == "Rocket") cout << "Forbidden. Cannot change name of Rocket.\n";
+                    else{
+                        cout << "Please enter a new name\n";
+                        cin >> newName;
+                        name = true;
+                    }
                 }
                 else{
-                    if(Entry == "name"){
-                        cout << "Please enter a new name" << endl;
-                        cin >> newName;
-                        name = true;               
+                    string newValue;
+                    cout << "Please enter a new double value\n";
+                    if(Entry == "mass" || Entry == "radius"){
+                        while(true){
+                            newValue = verify_altdouble();
+                            if(str_lower(newValue) == "cancel" || 0 < convert(newValue))break;
+                            cout << "Invalid entry. Both the Radius and Mass must be strictly positive." << endl;
+                        }                           
+                    }
+                    else
+                        newValue = verify_altdouble();
+                    if(str_lower(newValue) == "cancel"){
+                        cout << "Canceled. Ok what now?" << endl; 
+                        return;
                     }
                     else{
-                        string newValue;
-                        cout << "Please enter a new double value" << endl;
-                        if(Entry == "mass" || Entry == "radius"){
-                            while(true){
-                                newValue = verify_altdouble();
-                                if(str_lower(newValue) == "cancel" || 0 < convert(newValue))
-                                    break;
-                                cout << "Invalid entry. Both the Radius and Mass must be strictly positive." << endl;
-                            }                           
+                        if(Entry == "rx")
+                            New.Rx = convert(newValue);
+                        if(Entry == "ry")
+                            New.Ry = convert(newValue);
+                        if(Entry == "rz")
+                            New.Rz = convert(newValue);
+                        if(Entry == "vx")
+                            New.Vx = convert(newValue);
+                        if(Entry == "vy")
+                            New.Vy = convert(newValue);
+                        if(Entry == "vz")
+                            New.Vz = convert(newValue);                        
+                        if(Entry == "mass"){
+                            mass = true;
+                            Mss = convert(newValue);
                         }
-                        else
-                            newValue = verify_altdouble();
-                        if(str_lower(newValue) == "cancel"){
-                            Cancel = true;
-                            break;
+                        if(Entry == "radius"){
+                            radius = true;
+                            Rad = convert(newValue);
                         }
-                        else{
-                            if(Entry == "rx")
-                                New.Rx = convert(newValue);
-                            if(Entry == "ry")
-                                New.Ry = convert(newValue);
-                            if(Entry == "rz")
-                                New.Rz = convert(newValue);
-                            if(Entry == "vx")
-                                New.Vx = convert(newValue);
-                            if(Entry == "vy")
-                                New.Vy = convert(newValue);
-                            if(Entry == "vz")
-                                New.Vz = convert(newValue);                        
-                            if(Entry == "mass"){
-                                mass = true;
-                                Mss = convert(newValue);
-                            }
-                            if(Entry == "radius"){
-                                radius = true;
-                                Rad = convert(newValue);
-                            }
-                        }                  
-                    }                
-                }           
-            }
-            if(!Cancel){                
-                ObjectTracker[Pos] = New;
-                if(name)//Change name if necessary//
-                    Celestial_Bodies[New.ID]->Name = newName;
-                if(mass)
-                    Celestial_Bodies[New.ID]->Mass = Mss;
-                if(radius)
-                    Celestial_Bodies[New.ID]->Radius = Rad;
-                Celestial_Bodies[New.ID]->Values = New;
-                cout << "Done, what now?" << endl;
-            }
-            else
-                cout << "Canceled. Ok what now?" << endl;    
+                    }                  
+                }                         
+            }            
+            ObjectTracker[Pos] = New;
+            if(name)//Change name if necessary//
+                Celestial_Bodies[New.ID]->Name = newName;
+            if(mass)
+                Celestial_Bodies[New.ID]->Mass = Mss;
+            if(radius)
+                Celestial_Bodies[New.ID]->Radius = Rad;
+            Celestial_Bodies[New.ID]->Values = New;
+            cout << "Done, what now?" << endl;
         }
         else
             cout << "Sorry. Object either doesn't exist or was destroyed in a simulation. Add a new one." << endl;

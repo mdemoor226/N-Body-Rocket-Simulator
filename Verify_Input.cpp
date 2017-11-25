@@ -10,9 +10,6 @@
 
 using namespace std;
 
-
-//const char* Temp = Input.c_str();
-//char *c = &Temp[0];
 string str_lower(const string Input){//This function can be replaced by a macro//
     string Out;
     vector<char> v(Input.length()+1);
@@ -53,7 +50,7 @@ string verify_double(){
             cout << "Invalid Input. Please enter a floating point number" << endl;
     }
     //The rest of this function is just more or less me satisfying my OCD//
-    int DotCount= 0;
+    int DotCount = 0;
     for(int i=0; i<IN.length(); i++)
         if(IN[i] == '.')
             DotCount++;
@@ -63,7 +60,7 @@ string verify_double(){
     }
     if(IN[0] == '-' && IN[1] == '.')
         IN = IN.insert(1, "0");    
-    if(DotCount == 0 && str_lower(IN) != "finished")
+    if(DotCount == 0 && str_lower(IN) != "done")
         IN.append(".0");
     return IN;
 }

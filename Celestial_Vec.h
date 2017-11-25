@@ -61,15 +61,20 @@ class Celestial{
     friend void Init_Sim(Celestial*);   
     public:
         Celestial(const std::string);
-        void Simulate();
         void Add_Object(Celestial*);
-        //void Add_Rocket();
         void Remove_Object();
         void Alter_Object();
         void Change_Settings();
-        void Set_Parameters();
+        void Simulate();
+        int Set_Parameters();        
+        void Final_Sim(const std::string);        
+        void set_Rocket(const int, const bool);
         void View_Object() const;
         void View_Objects() const;
+        void View_Start_Objects() const;
+        bool get_Rocket(const int) const;
+        Sim_Param get_Parameters() const;
+        std::string get_Launch_Planet() const;
         std::string get_name() const;
         
         //Public Celestial Attributes//
@@ -77,12 +82,22 @@ class Celestial{
         std::vector<Attributes> ObjectTracker;     
         int SpaceCount; 
     private:
+        int alter_Rocket();
+        int add_Rocket(Attributes&, float&, float&);
         int get_position(const std::string);
         void Count_Decr(int);        
         Generator Orbit_Gen;
         std::string Sim_Name;
         //Default Simulation Parameters//
         Sim_Param Default;
+        struct Rocket{
+            bool Exist;//Rocket exists and has not been destroyed
+            bool Valid;//Default Simulation Parameters are up to date
+            bool Launched;//Rocket is Launched
+            std::string Launch;
+            Rocket() : Exist(false), Valid(true), Launched(false), Launch("Earth"){}
+        };
+        Rocket Ship;
 };
 
 
