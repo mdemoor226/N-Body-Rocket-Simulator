@@ -1,4 +1,4 @@
-/*
+/* final, goto, restrict
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -92,6 +92,13 @@ int Celestial::Set_Parameters(){
 
 int Celestial::add_Rocket(Attributes &Celestial, float &Mass, float &Radius){
     CelestialPtr Launch;
+    string IN;
+    cout << "Default Launch Planet is " << Ship.Launch << ". Is this ok?\n";
+    if(yes_no() == "no"){
+    	cout << "Enter Launch Planet Name\n";
+    	cin >> Ship.Launch;
+    }
+
     //Check to see if launch planet currently exists and is not destroyed
     while(true){
         bool exist = false;
@@ -107,7 +114,6 @@ int Celestial::add_Rocket(Attributes &Celestial, float &Mass, float &Radius){
         cin >> Ship.Launch;
     }
     
-    string IN;
     //Receive Mass and Radius of Rocket from user
     cout << "\nPlease enter Mass value for the Rocket.\n";
     while(true){
@@ -479,6 +485,13 @@ int Celestial::alter_Rocket(){
     if(yes_no() == "yes"){
         CelestialPtr Launch;
         CelestialPtr Rocket;
+        
+        cout << "Would you like to change the Launch Planet?\n";
+        if(yes_no() == "yes"){
+        	cout << "Enter new Launch Planet Name\n";
+        	cin >> Ship.Launch;
+        } 
+        
         //Check to see if launch planet currently exists and is not destroyed
         while(true){
             bool exist = false;

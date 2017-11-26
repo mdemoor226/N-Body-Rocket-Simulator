@@ -88,7 +88,7 @@ bool exit(Celestial &Active){
         return false;
     }
     if(!Active.get_Rocket(2)){
-        cout << "Error, Default simulation parameters are invalid. Set proper Default simulation parameters to use for each simulation and try again." << endl;
+        cout << "Error, Default simulation parameters are not. Set proper Default simulation parameters to use for each simulation and try again." << endl;
         return false;
     }
     
@@ -225,10 +225,10 @@ int main(){
             cout << "View      : Display a list of current simulation profiles.\nNew       : Create a new simulation profile.\n"
                     "Delete    : Delete a simulation profile.\nSave      : Save the current simulation profile.\nLoad      : Load in a different simulation profile.\n"
                     "Add       : Add objects to the system.\nRemove    : Remove an object from the system.\n"
-                    "Alter     : Change the values/attributes of an object.\nDisplay    : Display the attributes of a specific object.\n"
+                    "Alter     : Change the values/attributes of an object.\nDisplay   : Display the attributes of a specific object.\n"
                     "Display-a : Display the attributes of every object.\nDisplay-s : Display the original attributes each object was created with.\nSimulate  : Run a simulation."
                     "\nSet-s     : Set the Default Simulation Parameters.\nSet-o     : View and alter the Orbit Generator Settings.\nHelp      : List the commands.\n"
-                    "Exit      : Exit the program and upload your chosen simulation profile into a configuration file.\nQuit       : Directly quit the program" << endl;                 
+                    "Exit      : Exit the program and upload your chosen simulation profile into a configuration file.\nQuit      : Directly quit the program" << endl;                 
         else if(In == "exit"){
             if(exit(Active_Sim)) break;
         }
@@ -239,6 +239,3 @@ int main(){
         cout << endl;
     }
 }
-
-
-//terrific pear 941 !

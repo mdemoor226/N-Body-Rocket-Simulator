@@ -506,6 +506,7 @@ else{
 t = -1;
 //Join with other thread//
 if(pthread_join(UI, NULL) != 0) cout << "Error, unable to rejoin with UI thread." << endl;
+cout << "What now?" << endl;
 
 }
 

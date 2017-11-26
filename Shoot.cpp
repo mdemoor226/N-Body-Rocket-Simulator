@@ -5,7 +5,7 @@
  */
 
 /* 
- * File:   main.cpp
+ * File:   Shoot.cpp
  * Author: Michael DeMoor
  *
  * Created on November 24, 2017, 10:57 AM
@@ -633,7 +633,7 @@ bool verify_input(string Input){
         if(C == '-')
             MinusCount++;
     }
-    if(1 < DotCount || 1 < eCount)
+    if(1 < DotCount || 1 < eCount || 1 < Pluscount || 1 < MinusCount)
         return false;
     return true;  
 }
@@ -718,21 +718,21 @@ int main(int argc, char** argv) {
     string Launch, Target;
     string IN;
     
-  //  if(argc != 5)
-  //      return INVALID_ARG_NUM;
-  //  for(int i=1; i<5; i++){//Needs verification//
-  //      if(!verify_input(argv[i])) return INVALID_ARGS;
-   // }
+    if(argc != 5)
+        return INVALID_ARG_NUM;
+    for(int i=1; i<5; i++){//Needs verification//
+        if(!verify_input(argv[i])) return INVALID_ARGS;
+    }
 
     ifstream Config("Simulation.conf", ios::in);
     if(!Config)
         return FILE_ERROR;
     
     //Sort Command Line Inputs
-    Wait = 10000.0;//convert(argv[2]);
-    Time = 25000.0;//convert(argv[1]) + Wait;
-    Theta = 0.0;//convert(argv[3]);
-    Phi = 0.0;//convert(argv[4]);
+    Wait = convert(argv[2]);
+    Time = convert(argv[1]) + Wait;
+    Theta = convert(argv[3]);
+    Phi = convert(argv[4]);
         
     //Parse Simulation.conf file and create simulation profile//
     string Arg;
