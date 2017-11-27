@@ -633,7 +633,7 @@ bool verify_input(string Input){
         if(C == '-')
             MinusCount++;
     }
-    if(1 < DotCount || 1 < eCount || 1 < Pluscount || 1 < MinusCount)
+    if(1 < DotCount || 1 < eCount || 1 < PlusCount || 1 < MinusCount)
         return false;
     return true;  
 }
