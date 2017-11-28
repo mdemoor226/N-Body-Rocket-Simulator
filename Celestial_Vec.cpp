@@ -111,7 +111,9 @@ int Celestial::add_Rocket(Attributes &Celestial, float &Mass, float &Radius){
         }
         if(exist)break;
         cout << "Error, Launch planet either doesn't exist or was destroyed in a simulation. Please specify a nem one." << endl;
-        cin >> Ship.Launch;
+        cin >> IN;
+	if(str_lower(IN) == "cancel") return 1;
+	Ship.Launch = IN;
     }
     
     //Receive Mass and Radius of Rocket from user
@@ -485,6 +487,7 @@ int Celestial::alter_Rocket(){
     if(yes_no() == "yes"){
         CelestialPtr Launch;
         CelestialPtr Rocket;
+        string IN;
         
         cout << "Would you like to change the Launch Planet?\n";
         if(yes_no() == "yes"){
@@ -504,7 +507,9 @@ int Celestial::alter_Rocket(){
             }
             if(exist)break;
             cout << "Error, Launch planet either doesn't exist or was destroyed in a simulation. Please specify a new one." << endl;
-            cin >> Ship.Launch;
+            cin >> IN;
+            if(str_lower(IN) == "cancel") return 1;
+            Ship.Launch = IN;
         }
         
         //Get pointer to Rocket from Celestial_Bodies vector//
@@ -515,7 +520,6 @@ int Celestial::alter_Rocket(){
             }
         }
         
-        string IN;
         //Receive Mass and Radius of Rocket from user
         cout << "\nPlease enter Mass value for the Rocket.\n";
         while(true){

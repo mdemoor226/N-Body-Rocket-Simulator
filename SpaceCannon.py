@@ -28,20 +28,20 @@ traveltime = input()
 #########################################Receive Configuration Instruction from User########################################################
 print "Would you like to specify a grid of possible launch positions on the launch planet? Or a specified number of points? (Grid, Points)"
 while(True):
-	IN = input()
-	IN == IN.str_lower()
-	if(IN == "grid" or IN == "points"):
+	IN = raw_input()
+	IN = IN.str_lower()
+	if(IN == "Grid" or IN == "points"):
 		break;
 	print "Error, please enter either 'Grid' or 'Points'"
 ############################################################################################################################################
 Points = []#List of Lists containing Launch angles
 if(IN == "grid"):
 	#Ask user to specify grid resolution
-	
+	print "Whatever"
 	#Create a loop to append Points with Lists of Launch angles determined by Grid Resolution 
 	
 else: 
-	int Count = 0;
+	Count = 0;
 	print "Spcify Launch Points. Enter 'done' when done."
 	#Specify Possible Launch Points
 	while(True):
@@ -52,15 +52,15 @@ else:
 		IN = input()
 		if(IN.str_lower() == "done"):
 			break;
-		float theta = float(IN)#Need to test whether user inputted a floating point value
+		theta = float(IN)#Need to test whether user inputted a floating point value
 		Point.append(theta)
 		
 		#Specify Launch Angle Phi
 		print "Enter Launch Angle Phi"
 		IN = input()
-		if(IN.str_lower() == "done")
+		if(IN.str_lower() == "done"):
 			break;
-		float phi = float(IN)#Again, need to change code later to test whether or not user inputted a floating point number
+		phi = float(IN)#Again, need to change code later to test whether or not user inputted a floating point number
 		Point.append(phi)
 	
 		Points.append(Point)
