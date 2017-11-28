@@ -26,51 +26,59 @@ traveltime = input()
 
 
 #########################################Receive Configuration Instruction from User########################################################
-print "Would you like to specify a grid of possible launch positions on the launch planet? Or a specified number of points? (Grid, Points)"
+print "Would you like to specify a grid of possible launch positions on the launch planet,  or a specified number of points? Enter 'Grid' or 'Points'."
 while(True):
 	IN = raw_input()
-	IN = IN.str_lower()
-	if(IN == "Grid" or IN == "points"):
-		break;
+	IN = IN.lower()
+
+	if(IN == "grid" or IN == "points"):
+		break
 	print "Error, please enter either 'Grid' or 'Points'"
 ############################################################################################################################################
 Points = []#List of Lists containing Launch angles
 if(IN == "grid"):
 	#Ask user to specify grid resolution
-	print "Whatever"
+	print ""
 	#Create a loop to append Points with Lists of Launch angles determined by Grid Resolution 
 	
 else: 
-	Count = 0;
-	print "Spcify Launch Points. Enter 'done' when done."
+	count = 1
+	print "Specify Theta and Phi angles for each Launch Point. Enter 'done' when you are finished."
 	#Specify Possible Launch Points
 	while(True):
 		Point = []
-		print "Launch Positions Specified: ", Count
+		print "Launch Position Number: ", count
 		#Specify Launch Angle Theta
 		print "Enter Launch angle Theta"
-		IN = input()
-		if(IN.str_lower() == "done"):
-			break;
-		theta = float(IN)#Need to test whether user inputted a floating point value
+		IN = raw_input()
+		if(IN.lower() == "done"):
+			break
+
+		#Need to test whether user inputted a floating point value
+		theta =  float(IN)
 		Point.append(theta)
+		print "THETA is ", theta
 		
 		#Specify Launch Angle Phi
-		print "Enter Launch Angle Phi"
-		IN = input()
-		if(IN.str_lower() == "done"):
-			break;
-		phi = float(IN)#Again, need to change code later to test whether or not user inputted a floating point number
+		print "Enter Launch Angle Phi:"
+		IN = raw_input()
+		if(IN.lower() == "done"):
+			break
+
+		#Again, need to change code later to test whether or not user inputted a floating point number
+		phi = float(IN)
 		Point.append(phi)
+		print "PHI is ", phi
+
 	
 		Points.append(Point)
-		Count = Count+1;
+		count = count+1
 ############################################################################################################################################
 
 #Write Possible Launch Points and Wait Times to a file
 #####################Make Necessary Changes###################
 data = []
-file = open("Simfile", "r")
+file = open("Simfile.txt", "r")
 for line in file:
 	data.append(line)
 
