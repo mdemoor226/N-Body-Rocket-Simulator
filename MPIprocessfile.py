@@ -13,10 +13,15 @@ size = comm.Get_size()
 #Each process receives scattered input parameters to determine its Wait time and Launch position(Launch Angles)
 #Go over this process with Scott
 if(rank == 0):
-	Points = []
-	#Parse through file.conf
-	open("file.conf", "r")
-	#Transform Numpy values into strings
+	#Read Launch Points from "file.conf" file
+	file = open("file.conf", "r")
+	Points = file.read().split("\n")
+	file.close()
+
+	#this removes the trailing /n from being an element
+	Points = Points[:-1]
+	
+	print Points
 
 else:
 	Points = None
@@ -25,7 +30,7 @@ else:
 #...
 
 #Scatter array to each process#Consider using numpy for this
-Data = scatter('''...''')
+Points = comm.scatter(Points, root=0)
 
 #Launch Shoot Traveltime Waittime Theta Phi
 #If error in shoot throw exception (Most likely an error that will be common across all processes)#Check only on Master Node 
@@ -37,10 +42,10 @@ Data = scatter('''...''')
 comm.Barrier()########################################Barrier####################################################################
 
 #Gather Tracking Times from every simulation together into one array for the master node to compare times across simulations
-TrackData = comm.Gather(TrackTime, root=0)
+TrackData = comm.gather(TrackTime, root=0)
 
 OwnResult = 1 if(Status == "Success") else 0
-StatusData = comm.Gather(OwnResult, root=0)
+StatusData = comm.gather(OwnResult, root=0)
 
 #Determine if there were any successful simulations
 comm.Reduce(OwnResult, RStatus, op=MPI.MAX, root=0)
@@ -58,7 +63,7 @@ if(rank == 0):
 			Count = Count + 1		
 
 #Broadcast the Rank of the most successful Node
-BestRank = comm.Broadcast(BestRank, root=0)
+BestRank = comm.Bcast(BestRank, root=0)
 
 if(BestRank != -1):
 	if(rank == 0):
@@ -75,7 +80,7 @@ if(BestRank != -1):
 			#Terminate Program
 	elif(rank == BestRank):
 		#Send input Parameters back to master node
-		send(Data, dest=0, tag=10)
+		comm.Send(Data, dest=0, tag=10)
 		
 
 Result = 0.0
