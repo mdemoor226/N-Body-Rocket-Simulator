@@ -67,7 +67,8 @@ def Point(TimeRes, waittime, traveltime):
 	#Write Possible Launch Points and Wait Times to a file
 	##############################################################
 	file = open("file.conf", "w")
-	file.write(str(Points))
+	for item in Grid:
+		file.write("%s\n" % item)
 	file.close()
 	##############################################################
 
@@ -165,7 +166,8 @@ def Grid(TimeRes, waittime, traveltime):
 	#Write Possible Launch Points and Wait Times to a file
 	##############################################################
 	file = open("file.conf", "w")
-	file.write(str(Grid))
+	for item in Points:
+		file.write("%s\n" % item)
 	file.close()
 	##############################################################	
 
@@ -258,13 +260,6 @@ while(True):
 ############################################################################################################################################
 
 Grid(TimeRes, waittime, traveltime) if(IN == "grid") else Point(TimeRes, waittime, traveltime)
-
-#if(IN == "grid"):
-#	Point(TimeRes, waittime, traveltime)	
-#else: 
-#	Grid(TimeRes, waittime, traveltime)
-	
-
 
 ############################################################################################################################################
 
