@@ -22,21 +22,35 @@
 #include <string>
 #include <sstream>
 #include <math.h>
-
 #define G  0.0000000000667
 #define INVALID_ARG_NUM -1
 #define INVALID_ARGS -2
 #define FILE_ERROR -3
 #define PARSE_ERROR -4
+
 using namespace std;
 
 struct Position{
     double Rx;
     double Ry;
     double Rz;
+    /*Position operator+(Position &A, Position &B){
+    	Position C;
+    	C.Rx = A.Rx + B.Rx;
+    	C.Ry = A.Ry + B.Ry;
+    	C.Rz = A.Rz + B.Rz;
+    	return C;
+    }
+    Position operator-(Position &A, Position &B){
+    	Position C;
+    	C.Rx = A.Rx - B.Rx;
+    	C.Ry = A.Ry - B.Ry;
+    	C.Rz = A.Rz - B.Rz;
+    	return C;
+    }*/ 
 };
 
-struct Attributes{//Might consider adding mass and radius back into this structure//
+struct Attributes{
     int ID;
     double Vx;
     double Vy;
@@ -62,6 +76,7 @@ double Distance_Calc(const double, const double, const double);
 Attributes Momentum(Attributes, Attributes);
 void collision(const double, vector<Attributes>&);
 
+//Global Simulation Variables//
 vector<Celestial_Body> Celestial_Bodies;
 vector<Attributes> ObjectTracker;
 double Distance = DBL_MAX;
