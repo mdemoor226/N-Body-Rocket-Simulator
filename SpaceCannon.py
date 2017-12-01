@@ -64,21 +64,13 @@ def Point(TimeRes, waittime, traveltime):
 		Points.append(Point)
 		count = count+1	
 
-	#Write Possible Launch Points and Wait Times to a file
-	##############################################################
-	file = open("file.conf", "w")
-	for item in Grid:
-		file.write("%s\n" % item)
-	file.close()
-	##############################################################
-
 def Grid(TimeRes, waittime, traveltime):
 	#Enter info for Theta
 	print "Please enter angle resolution for launch angle Theta."
 	while(True):
 		Mt = raw_input()
 		try:
-			Mt =  int(IN)
+			Mt =  float(Mt)
 			break
 		except ValueError:
 			print "You messed up. Try again idiot."
@@ -88,7 +80,7 @@ def Grid(TimeRes, waittime, traveltime):
 	while(True):
 		MinT = raw_input()
 		try:
-			MinT =  float(IN)
+			MinT =  float(MinT)
 			break
 		except ValueError:
 			print "You messed up. Try again idiot."
@@ -99,7 +91,7 @@ def Grid(TimeRes, waittime, traveltime):
 	while(True):
 		MaxT = raw_input()
 		try:
-			MaxT =  float(IN)
+			MaxT =  float(MaxT)
 			break
 		except ValueError:
 			print "You messed up. Try again idiot."
@@ -111,7 +103,7 @@ def Grid(TimeRes, waittime, traveltime):
 	while(True):
 		Mp = raw_input()
 		try:
-			Mp =  int(IN)
+			Mp =  float(Mp)
 			break
 		except ValueError:
 			print "You messed up. Try again idiot."
@@ -121,7 +113,7 @@ def Grid(TimeRes, waittime, traveltime):
 	while(True):
 		MinP = raw_input()
 		try:
-			MinP =  float(IN)
+			MinP =  float(MinP)
 			break
 		except ValueError:
 			print "You messed up. Try again idiot."
@@ -132,7 +124,7 @@ def Grid(TimeRes, waittime, traveltime):
 	while(True):
 		MaxP = raw_input()
 		try:
-			MaxP =  float(IN)
+			MaxP =  float(MaxP)
 			break
 		except ValueError:
 			print "You messed up. Try again idiot."
@@ -162,14 +154,6 @@ def Grid(TimeRes, waittime, traveltime):
 				CountT = CountT+1
 			CountP = Count+1
 		CountTime = CountTime + 1
-
-	#Write Possible Launch Points and Wait Times to a file
-	##############################################################
-	file = open("file.conf", "w")
-	for item in Points:
-		file.write("%s\n" % item)
-	file.close()
-	##############################################################	
 
 print "**** Welcome to the Space Cannon Ballistics Simulation ****\n"
 
@@ -259,7 +243,20 @@ while(True):
 	print "Error, please enter either 'Grid' or 'Points'"
 ############################################################################################################################################
 
-Grid(TimeRes, waittime, traveltime) if(IN == "grid") else Point(TimeRes, waittime, traveltime)
+if(IN == "grid"):
+	Grid(TimeRes, waittime, traveltime)
+	#Write Possible Launch Points and Wait Times to a file
+	file = open("file.conf", "w")
+	for item in Grid:
+		file.write("%s\n" % item)
+	file.close()
+else:
+	Point(TimeRes, waittime, traveltime)
+	#Write Possible Launch Points and Wait Times to a file
+	file = open("file.conf", "w")
+	for item in Points:
+		file.write("%s\n" % item)
+	file.close()
 
 ############################################################################################################################################
 
@@ -268,10 +265,22 @@ print "\n**** Simulation ****"
 # Run the C++ Space simulation executable file, named 'Space'	
 os.system("./Space")
 
+
+#print str(len(Points))
+
+#Size = len(Points)
+
+
+#if(Size == 0):
+#	command = "mpiexec -n " + len(Points) + " python ./MPIprocessfile.py"
+#else:
+#	command = "mpiexec -n " + len(Grid) + " python ./MPIprocessfile.py"
+
+
+
 #This code calls the mpiexec command to spawn the MPIprocessfile.py file 2 times.//This will have to be an MPI Run command in the end, but MPI Exec is good for now//Might be alot more than 2 in the end
-#command = "mpiexec -n 2 python ./MPIprocessfile.py"
-#os.system(command)
-#print ""
+command = "mpiexec -n " + str(len(Grid)) + " python ./MPIprocessfile.py" if(len(Points) == 0) else "mpiexec -n " + str(len(Points)) + " python ./MPIprocessfile.py"
+os.system(command)
 
 
 

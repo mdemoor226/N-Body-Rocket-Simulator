@@ -32,13 +32,18 @@ else:
 #Scatter array to each process#Consider using numpy for this
 Points = comm.scatter(Points, root=0)
 
+print "Hello, my rank is: ", rank, " and my data is: ", Points
+
+
+
+
 #Launch Shoot Traveltime Waittime Theta Phi
 #If error in shoot throw exception (Most likely an error that will be common across all processes)#Check only on Master Node 
 
 #Parse Result.txt
 
 
-
+'''
 comm.Barrier()########################################Barrier####################################################################
 
 #Gather Tracking Times from every simulation together into one array for the master node to compare times across simulations
@@ -131,5 +136,5 @@ elif(BestRank == rank)
 #Implement a main function
 
 #Call other functions inside main. Terminate program inside main		
-		
+'''		
 		
