@@ -20,7 +20,6 @@ def Point(TimeRes, waittime, traveltime):
 	print "Specify Theta and Phi angles for each Launch Point. Enter 'done' when you are finished."
 	#Specify Possible Launch Points
 	while(True):
-		Point = []
 		print "Launch Position Number: ", count
 
 		#Specify Launch Angle Theta
@@ -54,82 +53,90 @@ def Point(TimeRes, waittime, traveltime):
 		#Append TIME variable and WAIT variable
 		CountTime = 0		
 		while(CountTime <= TimeRes):
+			Point = []
 			Wtime = CountTime*(waittime/TimeRes)
 			Point.append(theta)
 			Point.append(phi)			
 			Point.append(Wtime)
 			Point.append(int(traveltime))
-			CountTime = CountTime+1
-
-		Points.append(Point)
+			Points.append(Point)
+			CountTime = CountTime+1		
 		count = count+1	
 
-def Grid(TimeRes, waittime, traveltime):
+def Gridier(TimeRes, waittime, traveltime):
 	#Enter info for Theta
-	print "Please enter angle resolution for launch angle Theta."
 	while(True):
-		Mt = raw_input()
-		try:
-			Mt =  float(Mt)
-			break
-		except ValueError:
-			print "You messed up. Try again idiot."
+		print "Please enter angle resolution for launch angle Theta."
+		while(True):
+			Mt = raw_input()
+			try:
+				Mt =  float(Mt)
+				break
+			except ValueError:
+				print "You messed up. Try again idiot."
 
-	#Enter Min Theta				
-	print "Please enter minimum value for launch angle Theta."
-	while(True):
-		MinT = raw_input()
-		try:
-			MinT =  float(MinT)
-			break
-		except ValueError:
-			print "You messed up. Try again idiot."
-	MinT = MinT % 360
+		#Enter Min Theta				
+		print "Please enter minimum value for launch angle Theta."
+		while(True):
+			MinT = raw_input()
+			try:
+				MinT =  float(MinT)
+				break
+			except ValueError:
+				print "You messed up. Try again idiot."
+		MinT = MinT % 360
 	
-	#Enter Max Theta				
-	print "Please enter maximum value for launch angle Theta."
-	while(True):
-		MaxT = raw_input()
-		try:
-			MaxT =  float(MaxT)
+		#Enter Max Theta				
+		print "Please enter maximum value for launch angle Theta."
+		while(True):
+			MaxT = raw_input()
+			try:
+				MaxT =  float(MaxT)
+				break
+			except ValueError:
+				print "You messed up. Try again idiot."
+		MaxT = MaxT % 360
+		RangeT = MaxT - MinT
+		if(MinT <= MaxT):
 			break
-		except ValueError:
-			print "You messed up. Try again idiot."
-	MaxT = MaxT % 360
-	RangeT = MaxT - MinT
+		print "Error, min must be less than max."
 
 	#Enter info for Phi
-	print "Please enter angle resolution for launch angle Phi."
 	while(True):
-		Mp = raw_input()
-		try:
-			Mp =  float(Mp)
-			break
-		except ValueError:
-			print "You messed up. Try again idiot."
+		print "Please enter angle resolution for launch angle Phi."
+		while(True):
+			Mp = raw_input()
+			try:
+				Mp =  float(Mp)
+				break
+			except ValueError:
+				print "You messed up. Try again idiot."
 
-	#Enter Min Phi				
-	print "Please enter minimum value for launch angle Phi."
-	while(True):
-		MinP = raw_input()
-		try:
-			MinP =  float(MinP)
-			break
-		except ValueError:
-			print "You messed up. Try again idiot."
-	MinP = MinP % 360
+		#Enter Min Phi				
+		print "Please enter minimum value for launch angle Phi."
+		while(True):
+			MinP = raw_input()
+			try:
+				MinP =  float(MinP)
+				break
+			except ValueError:
+				print "You messed up. Try again idiot."
+		MinP = MinP % 360
 	
-	#Enter Max Phi				
-	print "Please enter maximum value for launch angle Phi."
-	while(True):
-		MaxP = raw_input()
-		try:
-			MaxP =  float(MaxP)
+		#Enter Max Phi				
+		print "Please enter maximum value for launch angle Phi."
+		while(True):
+			MaxP = raw_input()
+			try:
+				MaxP =  float(MaxP)
+				break
+			except ValueError:
+				print "You messed up. Try again idiot."
+		MaxP = MaxP % 360
+		RangeP = MaxP - MinP
+		if(MinP <= MaxP):
 			break
-		except ValueError:
-			print "You messed up. Try again idiot."
-	MaxP = MaxP % 360
-	RangeP = MaxP - MinP	
+		print "Error, min must be less than max."
 		
 	CountTime = 0
 	while(CountTime <= TimeRes):
@@ -152,7 +159,7 @@ def Grid(TimeRes, waittime, traveltime):
 		
 				Grid.append(gridPoint)
 				CountT = CountT+1
-			CountP = Count+1
+			CountP = CountP+1
 		CountTime = CountTime + 1
 
 print "**** Welcome to the Space Cannon Ballistics Simulation ****\n"
@@ -244,7 +251,7 @@ while(True):
 ############################################################################################################################################
 
 if(IN == "grid"):
-	Grid(TimeRes, waittime, traveltime)
+	Gridier(TimeRes, waittime, traveltime)
 	#Write Possible Launch Points and Wait Times to a file
 	file = open("file.conf", "w")
 	for item in Grid:
@@ -264,19 +271,6 @@ print "\n**** Simulation ****"
 
 # Run the C++ Space simulation executable file, named 'Space'	
 os.system("./Space")
-
-
-#print str(len(Points))
-
-#Size = len(Points)
-
-
-#if(Size == 0):
-#	command = "mpiexec -n " + len(Points) + " python ./MPIprocessfile.py"
-#else:
-#	command = "mpiexec -n " + len(Grid) + " python ./MPIprocessfile.py"
-
-
 
 #This code calls the mpiexec command to spawn the MPIprocessfile.py file 2 times.//This will have to be an MPI Run command in the end, but MPI Exec is good for now//Might be alot more than 2 in the end
 command = "mpiexec -n " + str(len(Grid)) + " python ./MPIprocessfile.py" if(len(Points) == 0) else "mpiexec -n " + str(len(Points)) + " python ./MPIprocessfile.py"
