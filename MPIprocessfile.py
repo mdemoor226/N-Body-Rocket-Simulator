@@ -1,19 +1,18 @@
 #MPIprocessfile.py
-#from mpi4py import MPI
+from mpi4py import MPI
 #import numpy as np
 import sys
 import os
 from subprocess import call
 import subprocess
-'''
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
-'''
+
 
 def Shoot():
 	Alignment = 256#Alignment might be different on different machines
-	value = os.system("./Shoot adsf sdaf asdf asdf")
+	value = os.system("./Shoot adsf sdaf asdf asdf")	
 	Error = value/Alignment
 	if(Error == 1):
 		raise Exception("Invalid arg num for shoot")
@@ -26,19 +25,8 @@ def Shoot():
 	else:
 		return
 
-#Launch Shoot Traveltime Waittime Theta Phi
-#If error in shoot throw exception (Most likely an error that will be common across all processes)#Check only on Master Node 
-#if(rank == 0)
-try:
-	Shoot()
-except Exception as E:
-	print "Shoot Error: " + repr(E)
-	#comm.abort()
-	#Terminate Program
 
 
-
-'''
 #Master Node scatters Launch Positions and Wait Times
 #Each process receives scattered input parameters to determine its Wait time and Launch position(Launch Angles)
 #Go over this process with Scott
@@ -56,20 +44,44 @@ if(rank == 0):
 else:
 	Points = None
 
-
-#...
-
-#Scatter array to each process#Consider using numpy for this
+ 
+#Scatter array to each process
 Points = comm.scatter(Points, root=0)
 
-print "Hello, my rank is: ", rank, " and my data is: ", Points
+#print "Hello, my rank is: ", rank, " and my data is: ", Points
+
+#Launch Shoot Traveltime Waittime Theta Phi
+#If error in shoot throw exception (Most likely an error that will be common across all processes)#Check only on Master Node 
+if(rank == 0):
+	try:
+		Shoot()
+	except Exception as E:
+		print "Shoot Error: " + repr(E)
+		#Terminate Program		
+		comm.abort()
+		
+
+#Parse Result.txt and Read in contents of Result.txt file
+file = open("Result.txt", "r")
+Line = file.readline()
+if (Line[0:30] == "\"These input parameters suck!\""):
+	Distance = sys.float_info.max
+	TrackTime = sys.float_info.max
+	Status = 0
+	file.close()
+
+else:
+	Results = Line.split(" ")
+	Distance = Results[0]
+	TrackTime = Results[1]
+	Status = Results[2]
+	file.close()
 
 
-'''
-#Parse Result.txt
+print "distance is", Distance, "TrackTime is", TrackTime, "Status is ", Status
+ 
 
 
-'''
 comm.Barrier()########################################Barrier####################################################################
 
 #Gather Tracking Times from every simulation together into one array for the master node to compare times across simulations
@@ -117,9 +129,10 @@ if(BestRank != -1):
 Result = 0.0
 comm.Reduce(Distance, Result, RStatus, op=MPI.MIN, root=0)
 if(rank == 0):
-	if(Result = sys.float_info.max):
+	if(Result == sys.float_info.max):
+		print "Your simulation setup really sucks." #Ultimate failure message		
 		comm.abort()
-		return "Your simulation setup really sucks." #Ultimate failure message
+		
 		
 DistData = comm.Gather(Distance, root=0)
 
@@ -153,7 +166,7 @@ if(rank == 0):
 	
 	#Terminate Program
 
-elif(BestRank == rank)
+elif(BestRank == rank):
 	send(Data, dest=0, tag=11)
 		
 		
@@ -162,5 +175,5 @@ elif(BestRank == rank)
 #Implement a main function
 
 #Call other functions inside main. Terminate program inside main		
-'''		
+		
 		
