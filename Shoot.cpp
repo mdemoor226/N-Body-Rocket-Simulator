@@ -23,10 +23,10 @@
 #include <sstream>
 #include <math.h>
 #define G  0.0000000000667
-#define INVALID_ARG_NUM -1
-#define INVALID_ARGS -2
-#define FILE_ERROR -3
-#define PARSE_ERROR -4
+#define INVALID_ARG_NUM 1
+#define INVALID_ARGS 2
+#define FILE_ERROR 3
+#define PARSE_ERROR 4
 
 using namespace std;
 

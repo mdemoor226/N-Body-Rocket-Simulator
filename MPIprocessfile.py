@@ -1,14 +1,44 @@
 #MPIprocessfile.py
-from mpi4py import MPI
-import numpy as np
+#from mpi4py import MPI
+#import numpy as np
 import sys
-
-
+import os
+from subprocess import call
+import subprocess
+'''
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 size = comm.Get_size()
+'''
+
+def Shoot():
+	Alignment = 256#Alignment might be different on different machines
+	value = os.system("./Shoot adsf sdaf asdf asdf")
+	Error = value/Alignment
+	if(Error == 1):
+		raise Exception("Invalid arg num for shoot")
+	elif(Error == 2):
+		raise Exception("Inavlid args for shoot")
+	elif(Error == 3):
+		raise Exception("File errors in shoot")
+	elif(Error == 4):
+		raise Exception("Parsing errors in shoot")
+	else:
+		return
+
+#Launch Shoot Traveltime Waittime Theta Phi
+#If error in shoot throw exception (Most likely an error that will be common across all processes)#Check only on Master Node 
+#if(rank == 0)
+try:
+	Shoot()
+except Exception as E:
+	print "Shoot Error: " + repr(E)
+	#comm.abort()
+	#Terminate Program
 
 
+
+'''
 #Master Node scatters Launch Positions and Wait Times
 #Each process receives scattered input parameters to determine its Wait time and Launch position(Launch Angles)
 #Go over this process with Scott
@@ -35,11 +65,7 @@ Points = comm.scatter(Points, root=0)
 print "Hello, my rank is: ", rank, " and my data is: ", Points
 
 
-
-
-#Launch Shoot Traveltime Waittime Theta Phi
-#If error in shoot throw exception (Most likely an error that will be common across all processes)#Check only on Master Node 
-
+'''
 #Parse Result.txt
 
 

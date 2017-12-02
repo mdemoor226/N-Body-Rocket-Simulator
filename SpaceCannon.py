@@ -2,7 +2,7 @@
 
 #SpaceCannon.py 
 #example to run: ./SpaceCannon.py
-import numpy 
+#import numpy 
 import sys 
 import os
 from subprocess import call
@@ -274,6 +274,7 @@ os.system("./Space")
 
 #This code calls the mpiexec command to spawn the MPIprocessfile.py file 2 times.//This will have to be an MPI Run command in the end, but MPI Exec is good for now//Might be alot more than 2 in the end
 command = "mpiexec -n " + str(len(Grid)) + " python ./MPIprocessfile.py" if(len(Points) == 0) else "mpiexec -n " + str(len(Points)) + " python ./MPIprocessfile.py"
+#command = "mpirun -n " + str(len(Grid)) + " python ./MPIprocessfile.py" if(len(Points) == 0) else "mpirun -n " + str(len(Points)) + " python ./MPIprocessfile.py"#Get this working using MPI run last
 os.system(command)
 
 
