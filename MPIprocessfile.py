@@ -1,6 +1,6 @@
 #MPIprocessfile.py
 from mpi4py import MPI
-#import numpy as np
+import numpy as np
 import sys
 import os
 from subprocess import call
@@ -38,8 +38,6 @@ if(rank == 0):
 
 	#this removes the trailing /n from being an element
 	Points = Points[:-1]
-	
-	print Points
 
 else:
 	Points = None
@@ -48,10 +46,9 @@ else:
 #Scatter array to each process
 Points = comm.scatter(Points, root=0)
 
+#print "Hello, my rank is: ", rank, " and my data is: ", Points
 Points = Points[1:-1]
 Points = Points.split(", ")
-
-#print "Hello, my rank is: ", rank, " and my data is: ", Points
 
 #Launch Shoot Traveltime Waittime Theta Phi
 #If error in shoot throw exception (Most likely an error that will be common across all processes)#Check only on Master Node 
@@ -63,9 +60,8 @@ if(rank == 0):
 		#Terminate Program		
 		comm.abort()
 else:
-	os.system("./Shoot " + str(Points[3]) + " " + str(Points[2]) + " " + str(Points[0]) + " " + str(Points[1]))		
-
-
+	os.system("./Shoot " + str(Points[3]) + " " + str(Points[2]) + " " + str(Points[0]) + " " + str(Points[1]))
+		
 
 #Parse Result.txt and Read in contents of Result.txt file
 file = open("Result.txt", "r")
@@ -83,7 +79,13 @@ else:
 	Status = Results[2]
 	file.close()
 
+
+print "distance is", Distance, "TrackTime is", TrackTime, "Status is ", Status
+ 
+
+
 comm.Barrier()########################################Barrier####################################################################
+OwnResult = []
 
 #Gather Tracking Times from every simulation together into one array for the master node to compare times across simulations
 TrackData = comm.gather(TrackTime, root=0)
@@ -92,7 +94,7 @@ OwnResult = 1 if(Status == "Success") else 0
 StatusData = comm.gather(OwnResult, root=0)
 
 #Determine if there were any successful simulations
-comm.Reduce(OwnResult, RStatus, op=MPI.MAX, root=0)
+comm.reduce(OwnResult, op=MPI.MAX, root=0)
 
 RStatus = 0
 BestRank = -1
@@ -107,46 +109,53 @@ if(rank == 0):
 			Count = Count + 1		
 
 #Broadcast the Rank of the most successful Node
-BestRank = comm.Bcast(BestRank, root=0)
+BestRank = comm.bcast(BestRank, root=0)
+
 
 if(BestRank != -1):
 	if(rank == 0):
 		if(BestRank == 0):
 			#print out best possible input parameters
-			print "..."
-			
+			print "..."			
 			#Terminate Program
+			comm.abort()
 		else:
 			Data = recv(source=BestRank, tag=10)
 			#Print out best possible input parameters
 			print "..."
-
 			#Terminate Program
+			comm.abort()
 	elif(rank == BestRank):
 		#Send input Parameters back to master node
-		comm.Send(Data, dest=0, tag=10)
+		comm.Send(Points, dest=0, tag=10)
 		
+Result = np.zeros(1)
+D = np.zeros(1)
+D[0] = Distance
 
-Result = 0.0
-comm.Reduce(Distance, Result, RStatus, op=MPI.MIN, root=0)
+#Reduce to get the main result Result of Minimum
+comm.Reduce(D, Result, op=MPI.MIN, root=0)
+Result = float(Result)
+
 if(rank == 0):
 	if(Result == sys.float_info.max):
 		print "Your simulation setup really sucks." #Ultimate failure message		
 		comm.abort()
+
 		
-		
-DistData = comm.Gather(Distance, root=0)
+DistData = comm.gather(Distance, root=0)
 
 
 #If any of the distances out of all the simulations are equal to the closest distance that one of the Rockets was able to get to its target planet (there has to be at least 1)
 #and if the Time the Rocket took to get there is lower than all other simulation times where the the simulated Rockets came just as close
 #then the node that obtained these results is the node with the best input parameters.
 BestRank = -1
-if(rank == 0):
+if(rank == 0):	
+
 	Count = 0
 	Trackmin = sys.float_info.max
 	for Dist in DistData:
-		if(Dist == Result and TrackData[Count] < Trackmin):
+		if((float(Dist) == float(Result)) and (float(TrackData[Count]) < float(Trackmin))):
 			Trackmin = TrackData[Count]
 			BestRank = Count
 		Count = Count+1
@@ -156,25 +165,26 @@ if(rank == 0):
 		print "..."
 
 		#Terminate Program
+
 	
-BestRank = comm.Broadcast(BestRank, root=0)	
-	
+BestRank = comm.bcast(BestRank, root=0)	
+
 if(rank == 0):
-	Data = recv(source=BestRank, tag=11)
-			
-	#Master prints out the best possible input parameters
-	print "...", Data	
+	if(BestRank == 0):
+		print "Best input parameters: ", Points
+	else:
+		Data = comm.recv(source=BestRank, tag=11)
 	
-	#Terminate Program
+		print "made it to the rank CLAUSE"	
+		#Master prints out the best possible input parameters
+		print "...", Data	
+	
+		#Terminate Program
 
 elif(BestRank == rank):
-	send(Data, dest=0, tag=11)
-		
-		
+	comm.send(Points, dest=0, tag=11)
 		
 
 #Implement a main function
 
-#Call other functions inside main. Terminate program inside main		
-		
-		
+#Call other functions inside main. Terminate program inside main				
