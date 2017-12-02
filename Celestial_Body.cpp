@@ -338,8 +338,8 @@ while(t<Wait){//This code cannot be parallelized//
                    Tracker[i] = C;
                    //Decrease Rocket and Planet Tracker position Counts if necessary
                    if(j < Rocketplace) Rocketplace--;
-                   if(j < Launchplace) Launchplace--;
                    if(j == Launchplace) Launchplace = -1;
+                   if(j < Launchplace) Launchplace--;
                    
                    //Remove T and decrease size of vectors in algorithm by 1//
                    Tracker.erase(Tracker.begin() + j);
@@ -353,8 +353,8 @@ while(t<Wait){//This code cannot be parallelized//
                    T = Momentum(T,C);
                    Tracker[j] = T;                
                    if(i < Rocketplace) Rocketplace--;
+                   if(i == Launchplace) Launchplace = -1;
                    if(i < Launchplace) Launchplace--;
-                   if(i == Launchplace) Launchplace = -1; 
                    
                    //Remove C and decrease size of vectors in algorithm by 1//
                    Tracker.erase(Tracker.begin() + i);
@@ -807,10 +807,10 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
                        Tracker[i] = C;
                        //Decrease Rocket and Planet Tracker position Counts if necessary
                        if(j < Rocketplace) Rocketplace--;
-                       if(j < Targetplace) Targetplace--;
                        if(j == Targetplace) Targetplace = -1;
-                       if(j < Launchplace) Launchplace--;
+                       if(j < Targetplace) Targetplace--;
                        if(j == Launchplace) Launchplace = -1;
+                       if(j < Launchplace) Launchplace--;
 
                        //Remove T and decrease size of vectors in algorithm by 1//
                        Tracker.erase(Tracker.begin() + j);
@@ -824,10 +824,10 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
                        T = Momentum(T,C);
                        Tracker[j] = T;                
                        if(i < Rocketplace) Rocketplace--;
-                       if(i < Targetplace) Targetplace--;
-                       if(i == Targetplace) Targetplace = -1;                       
+                       if(i == Targetplace) Targetplace = -1; 
+                       if(i < Targetplace) Targetplace--; 
+                       if(i == Launchplace) Launchplace = -1;                      
                        if(i < Launchplace) Launchplace--;
-                       if(i == Launchplace) Launchplace = -1; 
 
                        //Remove C and decrease size of vectors in algorithm by 1//
                        Tracker.erase(Tracker.begin() + i);
@@ -956,18 +956,18 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
                        //Update the Attributes value for C using the resulting velocity from the collision momentum calculation//                   
                        C = Momentum(C,T);
                        Tracker[i] = C;
-                       if(j < Rocketplace) Rocketplace--;
                        if(j == Rocketplace){
                            cout << "Rocket destroyed. No longer tracking distance between Rocket and Target." << endl;
                            Rocketplace = -1;
                            Tracking = false;
                        }
-                       if(j < Targetplace) Targetplace--;
+                       if(j < Rocketplace) Rocketplace--;
                        if(j == Targetplace){
                            cout << "Target destroyed. No longer tracking distance between Rocket and Target." << endl;
                            Targetplace = -1;
                            Tracking = false;
                        }
+                       if(j < Targetplace) Targetplace--;
                        //Remove T and decrease size of vectors in algorithm by 1//
                        Tracker.erase(Tracker.begin() + j);
                        K1.erase(K1.begin() + j); K1Copy.pop_back(); K2Copy.pop_back(); K2.erase(K2.begin() + j); K3.erase(K3.begin() + j); K3Copy.pop_back();K4.erase(K4.begin() + j);
@@ -979,18 +979,18 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
                        //Update the Attributes value for T using the resulting velocity from the collision momentum calculation//
                        T = Momentum(T,C);
                        Tracker[j] = T;                  
-                       if(i < Rocketplace) Rocketplace--;
                        if(i == Rocketplace){
                            cout << "Rocket destroyed. No longer tracking distance between Rocket and Target." << endl;
                            Rocketplace = -1;
                            Tracking = false;
                        }
-                       if(i < Targetplace) Targetplace--;
+                       if(i < Rocketplace) Rocketplace--;
                        if(i == Targetplace){
                            cout << "Target destroyed. No longer tracking distance between Rocket and Target." << endl;
                            Targetplace = -1;
                            Tracking = false;
                        }
+                       if(i < Targetplace) Targetplace--;
                        
                        //Remove C and decrease size of vectors in algorithm by 1//
                        Tracker.erase(Tracker.begin() + i);
