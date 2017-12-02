@@ -174,10 +174,9 @@ if(rank == 0):
 		print "Best input parameters: ", Points
 	else:
 		Data = comm.recv(source=BestRank, tag=11)
-	
-		print "made it to the rank CLAUSE"	
+		
 		#Master prints out the best possible input parameters
-		print "...", Data	
+		print "Best parameters...", Data	
 	
 		#Terminate Program
 
