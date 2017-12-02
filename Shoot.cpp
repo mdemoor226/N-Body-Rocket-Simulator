@@ -187,11 +187,12 @@ void Final_Sim(double Time, double h, double hmax, double hmin, double e, double
 
     //Check to see if Rocket, Launch Planet, and Target still exist and are not destroyed
     int Count = 0;
-    bool Fire = true;
+    bool Fire = false;
     for(Attributes Track : Tracker){
         if(Celestial_Bodies[Track.ID].Name == "Rocket"){
             Rocketplace = Count;
             Rocket_ID = Track.ID;
+            Fire = true;
         }
         if(Celestial_Bodies[Track.ID].Name == Launch) Launchplace = Count;
         if(Celestial_Bodies[Track.ID].Name == Target){
@@ -207,9 +208,7 @@ void Final_Sim(double Time, double h, double hmax, double hmin, double e, double
     }
     if(Rocketplace == -1){
         Wait = 0.0;
-        Fire = false;
-        Tracking = false;
-        
+        Tracking = false;        
     }        
     if(Fire){
         RocketShip = Tracker[Rocketplace];
@@ -328,7 +327,8 @@ void Final_Sim(double Time, double h, double hmax, double hmin, double e, double
         } 
     }
 
-    if(0<Wait){
+    //if(0<Wait){///////////////////////////////////BUG/////////////////////////////////////////////////////////////
+    if(Fire){
         //Check to see if Rocket/Launch Planet/Target is still intact//
         if(Launchplace != -1){
             Celestial_Bodies[Tracker[Launchplace].ID].Mass -= Celestial_Bodies[RocketShip.ID].Mass;
@@ -410,7 +410,7 @@ void Final_Sim(double Time, double h, double hmax, double hmin, double e, double
             Dist = Distance_Calc(C.Rx - T.Rx, C.Ry - T.Ry, C.Rz - T.Rz);
             if(Dist < Distance){
                 Distance = Dist;
-                TrackTime = t;
+                TrackTime = t - Wait;
             }
         }
         

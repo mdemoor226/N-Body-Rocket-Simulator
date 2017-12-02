@@ -232,11 +232,14 @@ collision(t, Tracker);//Check to see if any object starts inside another object/
 Initialize_Sim(K1, K1Copy, K2, K2Copy, K3, K3Copy, K4, K4Copy, K5, K5Copy, K6, Input, Result, Correction, Tracker);//Initialize Simulation Vectors//
 
 //Check to see if Rocket and Launch Planet still exist and are not destroyed
+bool Fire = false;
 if(Celestial_Vec->get_Rocket(0) && !Celestial_Vec->get_Rocket(1)){
     int Count = 0; int Rocket_Cnt = -1; int Launch_Cnt = -1;
-    bool Fire = true;
     for(Attributes Track : Tracker){
-        if(Celestial_Vec->Celestial_Bodies[Track.ID]->Name == "Rocket")Rocket_Cnt = Count;
+        if(Celestial_Vec->Celestial_Bodies[Track.ID]->Name == "Rocket"){
+        	Rocket_Cnt = Count;
+        	Fire = true;
+        }
         if(Celestial_Vec->Celestial_Bodies[Track.ID]->Name == Celestial_Vec->get_Launch_Planet())Launch_Cnt = Count;
         Count++;
     }
@@ -247,7 +250,6 @@ if(Celestial_Vec->get_Rocket(0) && !Celestial_Vec->get_Rocket(1)){
     }
     if(Rocket_Cnt == -1){
         Wait = 0.0;
-        Fire = false;
         cout << "Rocket destroyed. Aborting launch." << endl;
     }
     if(Fire){
@@ -373,7 +375,7 @@ while(t<Wait){//This code cannot be parallelized//
     } 
 }
 
-if(0<Wait){
+if(Fire){//if(0<Wait){
     //Check to see if Rocket/Launch Planet is still intact//
     if(Launchplace != -1){
         Celestial_Vec->Celestial_Bodies[Tracker[Launchplace].ID]->Mass -= Celestial_Vec->Celestial_Bodies[RocketShip.ID]->Mass;
@@ -697,11 +699,12 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
 
     //Check to see if Rocket, Launch Planet, and Target still exist and are not destroyed
     int Count = 0;
-    bool Fire = true;
+    bool Fire = false;
     for(Attributes Track : Tracker){
         if(Celestial_Vec->Celestial_Bodies[Track.ID]->Name == "Rocket"){
             Rocketplace = Count;
             Rocket_ID = Track.ID;
+            Fire = true;
         }
         if(Celestial_Vec->Celestial_Bodies[Track.ID]->Name == Celestial_Vec->get_Launch_Planet()) Launchplace = Count;
         if(Celestial_Vec->Celestial_Bodies[Track.ID]->Name == Target){
@@ -718,7 +721,6 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
     }
     if(Rocketplace == -1){
         Wait = 0.0;
-        Fire = false;
         cout << "Rocket destroyed. Aborting launch." << endl;
         Tracking = false;
         
@@ -736,9 +738,6 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
         K5.clear(); K5.shrink_to_fit(); K5 = Tracker;
         K6.clear(); K6.shrink_to_fit(); K6 = Tracker;        
     }
-    
-    //Create second thread to allow user to stop simulation at will//
-    //And to display current time value at will//
 
     //1st Simulation Loop//
     while(t<Wait){//This code cannot be parallelized//
@@ -846,7 +845,7 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
         } 
     }
 
-    if(0<Wait){
+    if(Fire){//if(0<Wait){
         //Check to see if Rocket/Launch Planet/Target is still intact//
         if(Launchplace != -1){
             Celestial_Vec->Celestial_Bodies[Tracker[Launchplace].ID]->Mass -= Celestial_Vec->Celestial_Bodies[RocketShip.ID]->Mass;
@@ -935,7 +934,7 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
             Dist = Distance_Calc(C.Rx - T.Rx, C.Ry - T.Ry, C.Rz - T.Rz);
             if(Dist < Distance){
                 Distance = Dist;
-                TrackTime = t;
+                TrackTime = t - Wait;
             }
         }
         

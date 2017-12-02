@@ -10,9 +10,9 @@ rank = comm.Get_rank()
 size = comm.Get_size()
 
 
-def Shoot():
+def Shoot(Points):
 	Alignment = 256#Alignment might be different on different machines
-	value = os.system("./Shoot adsf sdaf asdf asdf")	
+	value = os.system("./Shoot " + str(Points[3]) + " " + str(Points[2]) + " " + str(Points[0]) + " " + str(Points[1]))	
 	Error = value/Alignment
 	if(Error == 1):
 		raise Exception("Invalid arg num for shoot")
@@ -48,18 +48,24 @@ else:
 #Scatter array to each process
 Points = comm.scatter(Points, root=0)
 
+Points = Points[1:-1]
+Points = Points.split(", ")
+
 #print "Hello, my rank is: ", rank, " and my data is: ", Points
 
 #Launch Shoot Traveltime Waittime Theta Phi
 #If error in shoot throw exception (Most likely an error that will be common across all processes)#Check only on Master Node 
 if(rank == 0):
 	try:
-		Shoot()
+		Shoot(Points)
 	except Exception as E:
 		print "Shoot Error: " + repr(E)
 		#Terminate Program		
 		comm.abort()
-		
+else:
+	os.system("./Shoot " + str(Points[3]) + " " + str(Points[2]) + " " + str(Points[0]) + " " + str(Points[1]))		
+
+
 
 #Parse Result.txt and Read in contents of Result.txt file
 file = open("Result.txt", "r")
@@ -67,7 +73,7 @@ Line = file.readline()
 if (Line[0:30] == "\"These input parameters suck!\""):
 	Distance = sys.float_info.max
 	TrackTime = sys.float_info.max
-	Status = 0
+	Status = "Failure"
 	file.close()
 
 else:
@@ -76,11 +82,6 @@ else:
 	TrackTime = Results[1]
 	Status = Results[2]
 	file.close()
-
-
-print "distance is", Distance, "TrackTime is", TrackTime, "Status is ", Status
- 
-
 
 comm.Barrier()########################################Barrier####################################################################
 
