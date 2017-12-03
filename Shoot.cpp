@@ -34,20 +34,6 @@ struct Position{
     double Rx;
     double Ry;
     double Rz;
-    /*Position operator+(Position &A, Position &B){
-    	Position C;
-    	C.Rx = A.Rx + B.Rx;
-    	C.Ry = A.Ry + B.Ry;
-    	C.Rz = A.Rz + B.Rz;
-    	return C;
-    }
-    Position operator-(Position &A, Position &B){
-    	Position C;
-    	C.Rx = A.Rx - B.Rx;
-    	C.Ry = A.Ry - B.Ry;
-    	C.Rz = A.Rz - B.Rz;
-    	return C;
-    }*/ 
 };
 
 struct Attributes{

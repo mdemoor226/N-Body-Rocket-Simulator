@@ -69,7 +69,7 @@ int Celestial::Set_Parameters(){
                 cout << "Canceled" << endl;
                 return -1;
             }
-            if(convert(IN) <= Time/* && convert(IN) != 0.0*/)break;//Needs verification
+            if(convert(IN) <= Time)break;//Needs verification
             cout << "Error, wait time must be less than simulation time. Sim time: " << Time << endl;
         }
         Wait = convert(IN);
@@ -369,7 +369,7 @@ void Celestial::Simulate(){
                     cout << "Canceled" << endl;
                     return;
                 }
-                if(convert(IN) <= Time /*&& convert(IN) != 0.0*/)break;//Needs verification
+                if(convert(IN) <= Time)break;//Needs verification
                 cout << "Error, wait time must be less than simulation time. Sim time: " << Time << endl;
             }
             Wait = convert(IN);

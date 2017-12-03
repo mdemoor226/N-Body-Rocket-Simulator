@@ -1,19 +1,47 @@
 #! /usr/bin/python
 
-#SpaceCannon.py 
-#example to run: ./SpaceCannon.py
-#import numpy 
 import sys 
 import os
 from subprocess import call
 import subprocess
 
-
 Points = []#List of Lists containing Launch angles
 Grid = [] #List of Lists containing Grid points
 
-#def VerifyInput():
-#	pass
+def VerifyPointInput():
+	while(True):
+		IN = raw_input()
+		if(IN.lower() == "done"):
+			return "done"
+		try:
+			theta =  float(IN)
+			return theta
+		except ValueError:
+			print "You messed up. Try again."
+
+def VerifyInput():
+	while(True):
+		IN = raw_input()
+		try:
+			IN =  float(IN)
+			return IN
+		except ValueError:
+			print "You messed up. Try again."
+
+def VerifyTimeInput():
+	while(True):
+		Out = VerifyInput()
+		if(0 <= Out):
+			return Out
+		print "Error, Time values must be nonnegative"
+
+def VerifyResInput():
+	while(True):
+		Out = VerifyInput()
+		if(0 < Out):
+			return Out
+		print "Error, Resolution Inputs must be strictly positive"
+
 
 def Point(TimeRes, waittime, traveltime):
 	count = 1
@@ -24,33 +52,22 @@ def Point(TimeRes, waittime, traveltime):
 
 		#Specify Launch Angle Theta
 		print "Enter Launch angle Theta:"
-		while(True):
-			IN = raw_input()
-			if(IN.lower() == "done"):
-				return
-			try:
-				theta =  float(IN)
-				break
-			except ValueError:
-				print "You messed up. Try again idiot."
+		theta = VerifyPointInput()
+		if(str(theta) == "done"):
+			break
 		print "THETA is ", theta 
 		
 		#Specify Launch Angle Phi		
 		print "Enter Launch Angle Phi:"
-		while(True):
-			IN = raw_input()
-			if(IN.lower() == "done"):
-				return
-			try:
-				phi =  float(IN)
-				break
-			except ValueError:
-				print "You messed up. Try again idiot."
+		phi = VerifyPointInput()
+		if(str(phi) == "done"):
+			break
 		print "PHI is ", phi 		
 		
 		theta = theta % 360
 		phi = phi % 360
-		#Append TIME variable and WAIT variable
+		
+		#Append point along with all TIME and WAIT variables
 		CountTime = 0		
 		while(CountTime <= TimeRes):
 			Point = []
@@ -67,35 +84,18 @@ def Gridier(TimeRes, waittime, traveltime):
 	#Enter info for Theta
 	while(True):
 		print "Please enter angle resolution for launch angle Theta."
-		while(True):
-			Mt = raw_input()
-			try:
-				Mt =  float(Mt)
-				break
-			except ValueError:
-				print "You messed up. Try again idiot."
+		Mt = VerifyResInput()
 
 		#Enter Min Theta				
 		print "Please enter minimum value for launch angle Theta."
-		while(True):
-			MinT = raw_input()
-			try:
-				MinT =  float(MinT)
-				break
-			except ValueError:
-				print "You messed up. Try again idiot."
+		MinT = VerifyInput()
 		MinT = MinT % 360
 	
 		#Enter Max Theta				
 		print "Please enter maximum value for launch angle Theta."
-		while(True):
-			MaxT = raw_input()
-			try:
-				MaxT =  float(MaxT)
-				break
-			except ValueError:
-				print "You messed up. Try again idiot."
+		MaxT = VerifyInput()
 		MaxT = MaxT % 360
+
 		RangeT = MaxT - MinT
 		if(MinT <= MaxT):
 			break
@@ -104,40 +104,24 @@ def Gridier(TimeRes, waittime, traveltime):
 	#Enter info for Phi
 	while(True):
 		print "Please enter angle resolution for launch angle Phi."
-		while(True):
-			Mp = raw_input()
-			try:
-				Mp =  float(Mp)
-				break
-			except ValueError:
-				print "You messed up. Try again idiot."
+		Mp = VerifyResInput()
 
 		#Enter Min Phi				
 		print "Please enter minimum value for launch angle Phi."
-		while(True):
-			MinP = raw_input()
-			try:
-				MinP =  float(MinP)
-				break
-			except ValueError:
-				print "You messed up. Try again idiot."
+		MinP = VerifyInput()
 		MinP = MinP % 360
 	
 		#Enter Max Phi				
 		print "Please enter maximum value for launch angle Phi."
-		while(True):
-			MaxP = raw_input()
-			try:
-				MaxP =  float(MaxP)
-				break
-			except ValueError:
-				print "You messed up. Try again idiot."
+		MaxP = VerifyInput()
 		MaxP = MaxP % 360
+
 		RangeP = MaxP - MinP
 		if(MinP <= MaxP):
 			break
 		print "Error, min must be less than max."
-		
+	
+	#Append all possible points to grid	
 	CountTime = 0
 	while(CountTime <= TimeRes):
 		CountP = 0
@@ -167,72 +151,30 @@ print "**** Welcome to the Space Cannon Ballistics Simulation ****\n"
 #User needs to input the TIME they are willing to wait till Rocket Launch. The total calculation will be split up into possible time periods in seconds.
 print "Enter the maximum TIME you are willing to wait till Rocket Launch. \nThis will be entered as how many Days, Hours, and Minutes:"
 print "How many DAYS?"	
-while(True):
-	days = raw_input()
-	try:
-		days = float(days)
-		break
-	except ValueError:
-		print "You messed up. Try again idiot"
+days = VerifyTimeInput()
 
 print "How many HOURS?"
-while(True):
-	hours = raw_input()
-	try:
-		hours = float(hours)
-		break
-	except ValueError:
-		print "You messed up. Try again idiot"
+hours = VerifyTimeInput()
 
 print "How many MINUTES?"
-while(True):
-	minutes = raw_input()
-	try:
-		minutes = float(minutes)
-		break
-	except ValueError:
-		print "You messed up. Try again idiot"
+minutes = VerifyTimeInput()
 
 waittime = (int(days)*86400) + (int(hours)*3600) + (int(minutes)*60)
 
 print "Now specify the resolution you would like to use to divide up the possible launch times."
-while(True):
-	TimeRes = raw_input()
-	try:
-		TimeRes = int(TimeRes)
-		break
-	except ValueError:
-		print "Your messed up. Try again idiot" 
+TimeRes = VerifyResInput()
 
-###############################################################################################################################################This is good
-#User needs to input the time to WAIT for having the rocket hit the object (the total calculation will be in seconds.
+###############################################################################################################################################
+#User needs to input the time to WAIT for having the rocket hit the object (the total calculation will be in seconds).
 print "\nEnter time willing to WAIT for object to travel.  \nThis will be entered as how many Days, Hours, and Minutes:"
 print "How many DAYS?"
-while(True):
-	days = raw_input()
-	try:
-		days = float(days)
-		break
-	except ValueError:
-		print "You messed up. Try again idiot"
+days = VerifyTimeInput()
 
 print "How many HOURS?"
-while(True):
-	hours = raw_input()
-	try:
-		hours = float(hours)
-		break
-	except ValueError:
-		print "You messed up. Try again idiot"
+hours = VerifyTimeInput()
 
 print "How many MINUTES?"
-while(True):
-	minutes = raw_input()
-	try:
-		minutes = float(minutes)
-		break
-	except ValueError:
-		print "You messed up. Try again idiot"
+minutes = VerifyTimeInput()
 
 traveltime = (int(days)*86400) + (int(hours)*3600) + (int(minutes)*60)
 
@@ -272,15 +214,9 @@ print "\n**** Simulation ****"
 # Run the C++ Space simulation executable file, named 'Space'	
 os.system("./Space")
 
-#This code calls the mpiexec command to spawn the MPIprocessfile.py file 2 times.//This will have to be an MPI Run command in the end, but MPI Exec is good for now//Might be alot more than 2 in the end
+#Call MPIEXEC/RUN
 command = "mpiexec -n " + str(len(Grid)) + " python ./MPIprocessfile.py" if(len(Points) == 0) else "mpiexec -n " + str(len(Points)) + " python ./MPIprocessfile.py"
-#command = "mpirun -n " + str(len(Grid)) + " python ./MPIprocessfile.py" if(len(Points) == 0) else "mpirun -n " + str(len(Points)) + " python ./MPIprocessfile.py"#Get this working using MPI run last
+#command = "mpirun -n " + str(len(Grid)) + " python ./MPIprocessfile.py" if(len(Points) == 0) else "mpirun -n " + str(len(Points)) + " python ./MPIprocessfile.py"#Need to specify Hostnames
 os.system(command)
-
-
-
-
-
-
 
 

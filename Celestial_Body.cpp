@@ -1027,7 +1027,7 @@ string Get_Status(CelestialPtr Celestial){
     return Celestial->Status;
 }
 
-//double no_nonsense();//Under Construction//Create Mass to Radius Correspondence algorithm
+//double verify_radius();//Under Construction//Create Mass to Radius Correspondence algorithm in order to reduce errors between massive objects with small radiuses at close distances
 
 
 
