@@ -59,10 +59,11 @@ if(rank == 0):
 	except Exception as E:
 		print "Shoot Error: " + repr(E)
 		#Terminate Program		
-		comm.abort()
+		comm.Abort()
 else:
 	os.system("./Shoot " + str(Points[3]) + " " + str(Points[2]) + " " + str(Points[0]) + " " + str(Points[1]))
 		
+comm.Barrier()########################################Barrier####################################################################
 
 #Parse Result.txt and Read in contents of Result.txt file
 file = open("Result.txt", "r")
@@ -80,9 +81,6 @@ else:
 	Status = Results[2]
 	file.close()
  
-
-
-comm.Barrier()########################################Barrier####################################################################
 OwnResult = []
 
 #Gather Tracking Times from every simulation together into one array for the master node to compare times across simulations
@@ -127,7 +125,7 @@ if(BestRank != -1):
 			print "#####################################################################"
 			print ""			
 			#Terminate Program
-			comm.abort()
+			comm.Abort()
 		else:
 			Data = recv(source=BestRank, tag=10)
 			print ""
@@ -143,7 +141,7 @@ if(BestRank != -1):
 			print "#####################################################################"
 			print ""
 			#Terminate Program
-			comm.abort()
+			comm.Abort()
 	elif(rank == BestRank):
 		#Send input Parameters back to master node
 		comm.Send(Points, dest=0, tag=10)
@@ -159,7 +157,7 @@ Result = float(Result)
 if(rank == 0):
 	if(Result == sys.float_info.max):
 		print "Your simulation setup really sucks." #Ultimate failure message		
-		comm.abort()
+		comm.Abort()
 
 #Gather the results and pass it to the root node		
 DistData = comm.gather(Distance, root=0)

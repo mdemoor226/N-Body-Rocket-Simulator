@@ -88,7 +88,7 @@ bool exit(Celestial &Active){
         return false;
     }
     if(!Active.get_Rocket(2)){
-        cout << "Error, Default simulation parameters are not. Set proper Default simulation parameters to use for each simulation and try again." << endl;
+        cout << "Error, Default simulation parameters are not valid. Set proper Default simulation parameters to use for each simulation and try again." << endl;
         return false;
     }
     
