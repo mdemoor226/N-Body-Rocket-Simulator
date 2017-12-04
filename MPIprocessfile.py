@@ -13,7 +13,7 @@ size = comm.Get_size()
 #This function calls the C++ Shoot program.  Each node (including the root node) will run this with diff data sets.
 #Error handling is included
 def Shoot(Points):
-	Alignment = 256#Alignment might be different on different machines
+	Alignment = 256
 	value = os.system("./Shoot " + str(Points[3]) + " " + str(Points[2]) + " " + str(Points[0]) + " " + str(Points[1]))	
 	Error = value/Alignment
 	if(Error == 1):
@@ -170,7 +170,6 @@ DistData = comm.gather(Distance, root=0)
 #then the node that obtained these results is the node with the best input parameters.
 BestRank = -1
 if(rank == 0):	
-
 	Count = 0
 	Trackmin = sys.float_info.max
 	for Dist in DistData:
