@@ -178,23 +178,6 @@ if(rank == 0):
 			Trackmin = TrackData[Count]
 			BestRank = Count
 		Count = Count+1
-		
-	if(BestRank == 0):
-		print ""
-		print "#####################################################################"
-		print "FINAL RESULTS FOR ROCKET SIMULATION:		            ########"
-		print "#####################################################################"
-		print "The Best Input Parameters Include:"
-		print "Launch Angle THETA from the planet:        ", Points[0]
-		print "Launch Angle PHI from the planet:          ", Points[1]
-		print "Ideal time to wait before rocket launch:   ", Points[2]
-		print "Travel time from launch to rocket impact:  ", Points[3]
-		print "#####################################################################"
-		print "#####################################################################"
-		print ""
-
-
-		#Terminate Program
 
 #Broadcast the Rank of the Best Node from the root
 BestRank = comm.bcast(BestRank, root=0)	
