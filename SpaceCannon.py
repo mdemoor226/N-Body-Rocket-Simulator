@@ -38,8 +38,8 @@ def VerifyTimeInput():
 def VerifyResInput():
 	while(True):
 		Out = VerifyInput()
-		if(0 < Out):
-			return Out
+		if(0 < int(Out)):
+			return int(Out)
 		print "Error, Resolution Inputs must be strictly positive"
 
 
