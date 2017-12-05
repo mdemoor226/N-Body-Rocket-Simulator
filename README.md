@@ -31,7 +31,7 @@ and Initial escape speed of the Rocket.
 You can then run simulations to test if these are the Rocket parameters you want. Once finshed, if you haven't done so already you will need to set some default simulation paramters. The 
 default h, hmin, hmax, and error tolerance values specified here will be used across all simulations. 
 
-Finally you will tpye 'exit' to upload your simulation profile. You will be displayed the values of every celestial object and asked if you're ok with them. If yes you will then enter the 
+Finally you will type 'exit' to upload your simulation profile. You will be displayed the values of every celestial object and asked if you're ok with them. If yes you will then enter the 
 name of the target object to shoot for. Once done, you will be asked one last time if you would like to run a final simulation to test out the full profile. When satisfied, the simulation
 profile will be uploaded and Open MPI will be called.
 
