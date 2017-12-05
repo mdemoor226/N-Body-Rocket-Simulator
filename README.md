@@ -1,5 +1,6 @@
 HOW TO START THE PROGRAM:
-STEP ONE: Launch Run.sh you're done
+STEP ONE: chmod 533 RUN.sh, ./RUN.sh you're done
+One of the C++ programs will generate some unimportant warnings while compiling. Just ignore them.
 
 WHAT TO DO ONCE PROGRAM IS STARTED:
 The program will start by asking for the MAXIMUM time you're willing to wait until Rocket Launch. You will enter the time in days, hours, and then minutes. 
