@@ -92,10 +92,9 @@ StatusData = comm.gather(OwnResult, root=0)
 #Determine if there were any successful simulations
 comm.reduce(OwnResult, op=MPI.MAX, root=0)
 
-RStatus = 0
 BestRank = -1
 if(rank == 0):
-	if(RStatus == 1):
+	if(OwnResult == 1):
 		Trackmin = sys.float_info.max
 		Count = 0
 		for S in StatusData:
@@ -113,6 +112,7 @@ if(BestRank != -1):
 		if(BestRank == 0):
 			#print out best possible input parameters
 			print ""
+			print "Closest Distance Achieved from Rocket to Target: ",Distance
 			print "#####################################################################"
 			print "FINAL RESULTS FOR ROCKET SIMULATION:		            ########"
 			print "#####################################################################"
@@ -129,14 +129,15 @@ if(BestRank != -1):
 		else:
 			Data = recv(source=BestRank, tag=10)
 			print ""
+			print "Closest Distance Achieved from Rocket to Target: ",Data[4]
 			print "#####################################################################"
 			print "FINAL RESULTS FOR ROCKET SIMULATION:		            ########"
 			print "#####################################################################"
 			print "The Best Input Parameters Include:"
-			print "Launch Angle THETA from the planet:        ", Points[0], "degrees"
-			print "Launch Angle PHI from the planet:          ", Points[1], "degrees"
-			print "Ideal time to wait before rocket launch:   ", Points[2], "seconds"
-			print "Travel time from launch to rocket impact:  ", Points[3], "seconds"
+			print "Launch Angle THETA from the planet:        ", Data[0], "degrees"
+			print "Launch Angle PHI from the planet:          ", Data[1], "degrees"
+			print "Ideal time to wait before rocket launch:   ", Data[2], "seconds"
+			print "Travel time from launch to rocket impact:  ", Data[3], "seconds"
 			print "#####################################################################"
 			print "#####################################################################"
 			print ""
@@ -144,6 +145,7 @@ if(BestRank != -1):
 			comm.Abort()
 	elif(rank == BestRank):
 		#Send input Parameters back to master node
+		Points.append(Distance)
 		comm.Send(Points, dest=0, tag=10)
 		
 Result = np.zeros(1)
@@ -181,7 +183,8 @@ BestRank = comm.bcast(BestRank, root=0)
 
 if(rank == 0):
 	if(BestRank == 0):
-		print ""		
+		print ""
+		print "Closest Distance Achieved from Rocket to Target: ",Distance		
 		print "#####################################################################"
 		print "FINAL RESULTS FOR ROCKET SIMULATION:		            ########"
 		print "#####################################################################"
@@ -199,6 +202,7 @@ if(rank == 0):
 		
 		#Master prints out the best possible input parameters
 		print ""
+		print "Closest Distance Achieved from Rocket to Target: ",Data[4]
 		print "#####################################################################"
 		print "FINAL RESULTS FOR ROCKET SIMULATION:		            ########"
 		print "#####################################################################"
@@ -210,10 +214,9 @@ if(rank == 0):
 		print "#####################################################################"
 		print "#####################################################################"	
 		print ""
-	
-		#Terminate Program
 
 elif(BestRank == rank):
+	Points.append(Distance)
 	comm.send(Points, dest=0, tag=11)
 		
 				
