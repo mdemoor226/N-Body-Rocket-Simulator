@@ -67,7 +67,8 @@ comm.Barrier()########################################Barrier###################
 #Parse Result.txt and Read in contents of Result.txt file
 file = open("Result.txt", "r")
 Line = file.readline()
-if (Line[0:30] == "\"These input parameters suck!\""):
+
+if (Line[0:28] == "These input parameters suck!"):
 	Distance = sys.float_info.max
 	TrackTime = sys.float_info.max
 	Status = "Failure"
