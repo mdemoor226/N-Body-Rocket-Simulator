@@ -23,6 +23,7 @@
 #include <sstream>
 #include <math.h>
 #define G  0.0000000000667
+#define pi 3.141592653589793
 #define INVALID_ARG_NUM 1
 #define INVALID_ARGS 2
 #define FILE_ERROR 3
@@ -733,8 +734,10 @@ int main(int argc, char** argv) {
     Wait = convert(argv[2]);
     Time = convert(argv[1]) + Wait;
     Theta = convert(argv[3]);
+    Theta = 2*pi*(Theta/360.0);
     Phi = convert(argv[4]);
-        
+    Phi = 2*pi*(Phi/360.0);
+     
     //Parse Simulation.conf file and create simulation profile//
     string Arg;
     int Pos, Old_Pos;
