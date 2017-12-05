@@ -849,7 +849,7 @@ int main(int argc, char** argv) {
     if(!Result) return FILE_ERROR;
     if(Distance < DBL_MAX)
         Result << Distance << " " << TrackTime << " " << Status << endl;
-    else Result << "These input paramters suck!" << endl;
+    else Result << "These input parameters suck!" << endl;
     
     Config.close();
     Result.close();    
