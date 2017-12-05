@@ -215,8 +215,8 @@ print "\n**** Simulation ****"
 os.system("./Space")
 
 #Call MPIEXEC/RUN
-#command = "mpiexec -n " + str(len(Grid)) + " python ./MPIprocessfile.py" if(len(Points) == 0) else "mpiexec -n " + str(len(Points)) + " python ./MPIprocessfile.py"
-command = "mpirun -np " + str(len(Grid)) + " -machinefile host.txt python ./MPIprocessfile.py" if(len(Points) == 0) else "mpirun -np " + str(len(Points)) + " -machinefile host.txt python ./MPIprocessfile.py"#Need to specify Hostnames
+command = "mpiexec -n " + str(len(Grid)) + " python ./MPIprocessfile.py" if(len(Points) == 0) else "mpiexec -n " + str(len(Points)) + " python ./MPIprocessfile.py"
+#command = "mpirun -np " + str(len(Grid)) + " -machinefile host.txt python ./MPIprocessfile.py" if(len(Points) == 0) else "mpirun -np " + str(len(Points)) + " -machinefile host.txt python ./MPIprocessfile.py"#Need to specify Hostnames
 os.system(command)
 
 
