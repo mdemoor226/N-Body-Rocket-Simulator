@@ -140,7 +140,7 @@ int Celestial::add_Rocket(Attributes &Celestial, float &Mass, float &Radius){
     cout << "Please enter the launch angles that will determine the Rocket's position on the Launch Planet\nLaunch angles consist of the two spherical angles "
             "phi(from the x-z plane to the y-axis) and theta(the x-z plane).\n";
     cout << "Please enter an angle for theta.\n";    
-    IN = verify_pointdouble();
+    IN = verify_double();
     if(str_lower(IN) == "done")return 1; 
     theta = convert(IN);
     if(0 <= theta) theta = ((int)theta % 360) + (theta - (int)theta);
@@ -148,7 +148,7 @@ int Celestial::add_Rocket(Attributes &Celestial, float &Mass, float &Radius){
     theta = 2*pi*(theta/360.0);     
     
     cout << "Please enter an angle for phi.\n";
-    IN = verify_pointdouble();
+    IN = verify_double();
     if(str_lower(IN) == "done")return 1; 
     phi = convert(IN);
     if(0 <= phi) phi = ((int)phi % 360) + (phi - (int)phi);
@@ -523,7 +523,7 @@ int Celestial::alter_Rocket(){
         //Receive Mass and Radius of Rocket from user
         cout << "\nPlease enter Mass value for the Rocket.\n";
         while(true){
-            IN = verify_double();
+            IN = verify_altdouble();
             if(str_lower(IN) == "cancel" || 0 < convert(IN))break;
             cout << "Invalid value. Enter a positive mass value" << endl;
         }
@@ -532,7 +532,7 @@ int Celestial::alter_Rocket(){
 
         cout << "\nPlease enter Radius value for the Rocket.\n";
         while(true){
-            IN = verify_double();
+            IN = verify_altdouble();
             if(str_lower(IN) == "cancel" || 0 < convert(IN))break;
             cout << "Invalid value. Enter a positive radius value\n";
         }
@@ -563,7 +563,7 @@ int Celestial::alter_Rocket(){
         double Speed;
         cout << "Please enter the launch speed of the rocket. (m/s)\n";
         while(true){
-            IN = verify_double();
+            IN = verify_altdouble();
             if(str_lower(IN) == "cancel" || 0 <= convert(IN))break;
             cout << "Invalid value. Enter a nonnegative speed value\n";
         }
@@ -748,14 +748,14 @@ void Init_Sim(Celestial *Sim){
     Sim->Celestial_Bodies.emplace_back(new Celestial_Body("Sun",597220000000000000000.0,Celestial,987654321, Sim));
     Celestial.Rx = 70000000000.0; Celestial.Ry = 0.0; Celestial.Rz = 0.0; Celestial.Vx = 0.0; Celestial.Vy = 2385509.050196923; Celestial.Vz = 0.0;
     Sim->Celestial_Bodies.emplace_back(new Celestial_Body("Jupiter", 9237000000000000.0, Celestial, 10000000, Sim));
-    Celestial.Rx = 5000000000.0; Celestial.Ry = -50000000000.0; Celestial.Rz = 0.0; Celestial.Vx = 0.0; Celestial.Vy = 50000.0; Celestial.Vz = 0.0;
+    Celestial.Rx = 5000000000.0; Celestial.Ry = -50000000000.0; Celestial.Rz = 0.0; Celestial.Vx = 0.0; Celestial.Vy = 0.0; Celestial.Vz = 0.0;
     Sim->Celestial_Bodies.emplace_back(new Celestial_Body("Earth",500000000000000000000000000000000.0,Celestial,987321, Sim));
     Celestial.Rx = 5007910000; Celestial.Ry = -49956500000; Celestial.Rz = 444010000; Celestial.Vx = 1317430; Celestial.Vy = 7290370; Celestial.Vz = 2172960;
-    Sim->Celestial_Bodies.emplace_back(new Celestial_Body("Daniel", 500000, Celestial, 462300, Sim));
+    Sim->Celestial_Bodies.emplace_back(new Celestial_Body("Notch", 500000, Celestial, 462300, Sim));
     Celestial.Rx = 4235670000; Celestial.Ry = -49653000000; Celestial.Rz = 823960000; Celestial.Vx = 1770000; Celestial.Vy = -753565; Celestial.Vz = -958138;
     Sim->Celestial_Bodies.emplace_back(new Celestial_Body("Michael", 200000, Celestial, 492200, Sim));
     Celestial.Rx = 452450000; Celestial.Ry = 999380000; Celestial.Rz = 944590000; Celestial.Vx = 2.1058; Celestial.Vy = 465134; Celestial.Vz = -4.05;
-    Sim->Celestial_Bodies.emplace_back(new Celestial_Body("Thomas", 21600000, Celestial, 1060800, Sim));    
+    Sim->Celestial_Bodies.emplace_back(new Celestial_Body("Saint", 21600000, Celestial, 1060800, Sim));    
     Celestial.Rx = 700000070.0; Celestial.Ry = 0.0; Celestial.Rz = 800200000; Celestial.Vx = 0.0; Celestial.Vy = 0.0; Celestial.Vz = -50000;
     Sim->Celestial_Bodies.emplace_back(new Celestial_Body("Mars", 600000000.0, Celestial,43553, Sim));    
     Celestial.Rx = 5000000000.0; Celestial.Ry = -50000000000.0; Celestial.Rz = 2000000.0; Celestial.Vx = 0.0; Celestial.Vy = 50000.0; Celestial.Vz = -5000.0;
