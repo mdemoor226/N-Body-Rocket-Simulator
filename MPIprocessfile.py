@@ -28,7 +28,6 @@ def Shoot(Points):
 		return
 
 
-
 #Master Node scatters Launch Positions and Wait Times
 #Each process receives scattered input parameters to determine its Wait time and Launch position(Launch Angles)
 if(rank == 0):
@@ -117,10 +116,10 @@ if(BestRank != -1):
 			print "FINAL RESULTS FOR ROCKET SIMULATION:		            ########"
 			print "#####################################################################"
 			print "The Best Input Parameters Include:"
-			print "Launch Angle THETA from the planet:        ", Points[0]
-			print "Launch Angle PHI from the planet:          ", Points[1]
-			print "Ideal time to wait before rocket launch:   ", Points[2]
-			print "Travel time from launch to rocket impact:  ", Points[3]
+			print "Launch Angle THETA from the planet:        ", Points[0], "degrees"
+			print "Launch Angle PHI from the planet:          ", Points[1], "degrees"
+			print "Ideal time to wait before rocket launch:   ", Points[2], "seconds"
+			print "Travel time from launch to rocket impact:  ", Points[3], "seconds"
 			print "#####################################################################"
 			print "#####################################################################"
 			print ""			
@@ -133,10 +132,10 @@ if(BestRank != -1):
 			print "FINAL RESULTS FOR ROCKET SIMULATION:		            ########"
 			print "#####################################################################"
 			print "The Best Input Parameters Include:"
-			print "Launch Angle THETA from the planet:        ", Points[0]
-			print "Launch Angle PHI from the planet:          ", Points[1]
-			print "Ideal time to wait before rocket launch:   ", Points[2]
-			print "Travel time from launch to rocket impact:  ", Points[3]
+			print "Launch Angle THETA from the planet:        ", Points[0], "degrees"
+			print "Launch Angle PHI from the planet:          ", Points[1], "degrees"
+			print "Ideal time to wait before rocket launch:   ", Points[2], "seconds"
+			print "Travel time from launch to rocket impact:  ", Points[3], "seconds"
 			print "#####################################################################"
 			print "#####################################################################"
 			print ""
@@ -186,10 +185,10 @@ if(rank == 0):
 		print "FINAL RESULTS FOR ROCKET SIMULATION:		            ########"
 		print "#####################################################################"
 		print "The Best Input Parameters Include:"
-		print "Launch Angle THETA from the planet:        ", Points[0]
-		print "Launch Angle PHI from the planet:          ", Points[1]
-		print "Ideal time to wait before rocket launch:   ", Points[2]
-		print "Travel time from launch to rocket impact:  ", Points[3]
+		print "Launch Angle THETA from the planet:        ", Points[0], "degrees"
+		print "Launch Angle PHI from the planet:          ", Points[1], "degrees"
+		print "Ideal time to wait before rocket launch:   ", Points[2], "seconds"
+		print "Travel time from launch to rocket impact:  ", Points[3], "seconds"
 		print "#####################################################################"
 		print "#####################################################################"
 		print ""
@@ -203,10 +202,10 @@ if(rank == 0):
 		print "FINAL RESULTS FOR ROCKET SIMULATION:		            ########"
 		print "#####################################################################"
 		print "The Best Input Parameters Include:"
-		print "Launch Angle THETA from the planet:        ", Data[0]
-		print "Launch Angle PHI from the planet:          ", Data[1]
-		print "Ideal time to wait before rocket launch:   ", Data[2]
-		print "Travel time from launch to rocket impact:  ", Data[3]
+		print "Launch Angle THETA from the planet:        ", Data[0], "degrees"
+		print "Launch Angle PHI from the planet:          ", Data[1], "degrees"
+		print "Ideal time to wait before rocket launch:   ", Data[2], "seconds"
+		print "Travel time from launch to rocket impact:  ", Data[3], "seconds"
 		print "#####################################################################"
 		print "#####################################################################"	
 		print ""
