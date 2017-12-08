@@ -221,6 +221,8 @@ int main(){
             Remove_Sim(Sims);
         else if(In == "view")
             View_Sims(Sims);
+        else if(In == "clear")
+            system("clear");
         else if(In == "help")
             cout << "View      : Display a list of current simulation profiles.\nNew       : Create a new simulation profile.\n"
                     "Delete    : Delete a simulation profile.\nSave      : Save the current simulation profile.\nLoad      : Load in a different simulation profile.\n"
