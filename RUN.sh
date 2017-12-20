@@ -1,5 +1,5 @@
 #!/bin/bash
 
-clear
 make
+clear
 ./SpaceCannon.py
