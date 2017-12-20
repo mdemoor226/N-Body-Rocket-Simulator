@@ -40,7 +40,16 @@ struct Position{
     double Rx;
     double Ry;
     double Rz;
+    /*Position& operator+(Position &A){
+        Rx += A.Rx; Ry += A.Ry; Rz += A.Rz;
+        return *this;
+    }
+    Position& operator-(Position &A){
+        Rx -= A.Rx; Ry -= A.Ry; Rz -= A.Rz;
+        return *this;
+    }*/
 };
+
 //To do list: Get rid of User type and replace with int codes//
 typedef enum {Zero, Partial, Full}User;
 typedef struct{//Define random settings//
@@ -123,8 +132,9 @@ bool verify_siminput(std::string);
 std::string verify_simdouble();
 bool verify_altinput(std::string);
 std::string verify_altdouble();
-bool verify_pointinput(std::string Input);
+bool verify_pointinput(std::string);
 std::string verify_pointdouble();
+bool verify_fileinput(std::string);
 
 #endif /* ATTRIBUTES_H */
 

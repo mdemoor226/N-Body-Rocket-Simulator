@@ -4,6 +4,9 @@
  * and open the template in the editor.
  */
 
+#include <fstream>
+#include <stdexcept>
+#include <algorithm>
 #include "TrackingSystem.h"
 
 using namespace std;
@@ -64,7 +67,7 @@ int Celestial::Set_Parameters(){
     if(Ship.Exist && !Ship.Launched){
         cout << "Please specify the length in time to wait for the rocket launch.\n";
         while(true){
-            IN = verify_simdouble();
+            IN = verify_altdouble();
             if(str_lower(IN) == "cancel"){
                 cout << "Canceled" << endl;
                 return -1;
@@ -83,7 +86,7 @@ int Celestial::Set_Parameters(){
     Default.e = e;
     Default.Wait = Wait;
     
-    //Update Rocket Paramters//
+    //Update Rocket Parameters//
     Ship.Valid = true;
     
     cout << "Done" << endl;
@@ -195,7 +198,7 @@ int Celestial::add_Rocket(Attributes &Celestial, float &Mass, float &Radius){
 }
 
 //This code still needs to be commented out
-void Celestial::Add_Object(Celestial* Sim){
+void Celestial::Add_Object(){
     Attributes Celestial;
     string IN, Name;
     int Count = 0;
@@ -210,17 +213,10 @@ void Celestial::Add_Object(Celestial* Sim){
             if(str_lower(Name) == "rocket"){
                 Name = str_lower(Name);
                 Name[0] = 'R';
-            }
-            
+            }           
             //Test whether object currently exists already or not//
-            bool exist = false;
-            for(CelestialPtr Object : Celestial_Bodies){
-                if(Object->get_Name() == Name){
-                    exist = true;
-                    break;
-                }                
-            }
-            if(!exist)break;
+            if(!any_of(Celestial_Bodies.cbegin(), Celestial_Bodies.cend(), [Name](CelestialPtr Object){ return Object->Name == Name;}))
+                break;            
             cout << "Error, object already exists. If it was destroyed in a simulation remove it first and try again." << endl;
         }
         if(str_lower(Name) == "done")break;
@@ -232,7 +228,7 @@ void Celestial::Add_Object(Celestial* Sim){
         }
         if(IN == "yes" || Name == "Rocket"){//This code needs future updating
             if(Name == "Rocket"){if(add_Rocket(Celestial, Mass, Radius))break;}
-            else if(Orbit_Gen.Rand_Orbit_Gen(&Celestial, Mass, Radius, Celestial_Bodies, Name))break;//Count--;
+            else if(Orbit_Gen.Rand_Orbit_Gen(&Celestial, Mass, Radius, Celestial_Bodies, Name))break;
             else cout << endl;
         }
         else{
@@ -284,7 +280,32 @@ void Celestial::Add_Object(Celestial* Sim){
             if(str_lower(IN) == "done")break; 
             Radius = convert(IN);
         }
-        Celestial_Bodies.emplace_back(new Celestial_Body(Name, Mass, Celestial, Radius, Sim));
+        //Check if Rocket exists
+        if(any_of(Celestial_Bodies.cbegin(), Celestial_Bodies.cend(), [](CelestialPtr Object){ return Object->Name == "Rocket";})){
+            //Copy Rocket
+            int Count = 0;
+            float RMass, RRadius;
+            Attributes RocketShip;           
+            for(CelestialPtr Object : Celestial_Bodies){
+                if(Object->Name == "Rocket"){
+                    Object->Remove();
+                    RMass = Object->Mass;
+                    RRadius = Object->Radius;
+                    RocketShip = Object->Values;
+                    break;
+                }
+                Count++;
+            }
+            //Fully Remove Rocket
+            Celestial_Bodies.erase(Celestial_Bodies.begin() + Count);
+            if(!Celestial_Bodies.empty()) Count_Decr(Count); 
+                                 
+            Celestial_Bodies.emplace_back(new Celestial_Body(Name, Mass, Celestial, Radius, this));
+            //Re-Add Rocket
+            Celestial_Bodies.emplace_back(new Celestial_Body("Rocket", RMass, RocketShip, RRadius, this));
+        }
+        else
+            Celestial_Bodies.emplace_back(new Celestial_Body(Name, Mass, Celestial, Radius, this));
         Count++;
     }  
     cout << "Ok, what now?" << endl;
@@ -364,7 +385,7 @@ void Celestial::Simulate(){
         if(Ship.Exist && !Ship.Launched){
             cout << "Please specify the length in time to wait for the rocket launch.\n";
             while(true){
-                IN = verify_simdouble();
+                IN = verify_altdouble();
                 if(str_lower(IN) == "cancel"){
                     cout << "Canceled" << endl;
                     return;
@@ -716,11 +737,119 @@ void Celestial::Alter_Object(){
     }
 }
 
+void Celestial::Upload(){
+    if(ObjectTracker.empty()){
+        cout << "No simulation objects remain to upload. Add some first and try again." << endl;
+        return;
+    }
+    string File = Sim_Name;
+    File.append(".conf");
+    ofstream Config(File, ios::out);   
+    if(!Config){
+        cerr << "Error, could not open file to upload simulation profile to." << endl;
+        return;
+    }
+    
+    Config.precision(25);    
+    for(CelestialPtr Object : Celestial_Bodies){
+        if(Get_Status(Object) != "Destroyed"){
+            double mass = Object->get_Mass();
+            double radius = Object->get_Radius();
+            Attributes V = Object->get_attributes();
+            Config << " //Name:" << Object->get_Name() << "Mass:" << mass << "Radius:" << radius << "Rx:" << V.Rx << "Ry:" << V.Ry << "Rz:" << V.Rz
+                    << "Vx:" << V.Vx << "Vy:" << V.Vy << "Vz:" << V.Vz << "//";      
+        }
+    }
+    
+    Config.close();
+    cout << "Uploaded." << endl;
+}
+
+void Celestial::Download(){
+    string File;
+    cout << "Enter the name of the simulation profile you would like to download.\n";
+    cin  >> File;
+    ifstream Config(File.append(".conf"), ios::in);
+    if(!Config){
+        throw std::invalid_argument("Unable to open file.");
+    }
+    
+    //Remove all//
+    ObjectTracker.clear();
+    Celestial_Bodies.clear();
+    SpaceCount = 0;
+    Ship.Exist = false;
+    Ship.Launched = false;
+    Ship.Valid = false;
+    
+    string IN, Arg, Name;
+    int Pos, Old_Pos;
+    float Mass, Radius;
+    Attributes Values;
+    while(Config >> IN){
+        Pos = IN.find("Mass", 0);
+        Arg = IN.substr(7, Pos-7);
+        Name = Arg;
+        
+        Old_Pos = Pos;
+        Pos = IN.find("Radius", Pos);
+        Arg = IN.substr(Old_Pos+5, Pos - (Old_Pos+5));
+        if(verify_fileinput(Arg)) Mass = convert(Arg);
+        else throw std::invalid_argument("Parsing error.");
+        
+        Old_Pos = Pos;
+        Pos = IN.find("Rx", Pos);
+        Arg = IN.substr(Old_Pos+7, Pos - (Old_Pos+7));
+        if(verify_fileinput(Arg)) Radius = convert(Arg);
+        else throw std::invalid_argument("Parsing error.");
+
+        Old_Pos = Pos;
+        Pos = IN.find("Ry", Pos);
+        Arg = IN.substr(Old_Pos+3, Pos - (Old_Pos+3));
+        if(verify_fileinput(Arg)) Values.Rx = convert(Arg);
+        else throw std::invalid_argument("Parsing error.");       
+        
+        Old_Pos = Pos;
+        Pos = IN.find("Rz", Pos);
+        Arg = IN.substr(Old_Pos+3, Pos - (Old_Pos+3));
+        if(verify_fileinput(Arg)) Values.Ry = convert(Arg);
+        else throw std::invalid_argument("Parsing error.");
+
+        Old_Pos = Pos;
+        Pos = IN.find("Vx", Pos);
+        Arg = IN.substr(Old_Pos+3, Pos - (Old_Pos+3));
+        if(verify_fileinput(Arg)) Values.Rz = convert(Arg);
+        else throw std::invalid_argument("Parsing error.");        
+
+        Old_Pos = Pos;
+        Pos = IN.find("Vy", Pos);
+        Arg = IN.substr(Old_Pos+3, Pos - (Old_Pos+3));
+        if(verify_fileinput(Arg)) Values.Vx = convert(Arg);
+        else throw std::invalid_argument("Parsing error.");        
+        
+        Old_Pos = Pos;
+        Pos = IN.find("Vz", Pos);
+        Arg = IN.substr(Old_Pos+3, Pos - (Old_Pos+3));
+        if(verify_fileinput(Arg)) Values.Vy = convert(Arg);
+        else throw std::invalid_argument("Parsing error.");  
+        
+        Old_Pos = Pos;
+        Pos = IN.find("//", Pos);
+        Arg = IN.substr(Old_Pos+3, Pos - (Old_Pos+3));
+        if(verify_fileinput(Arg)) Values.Vz = convert(Arg);
+        else throw std::invalid_argument("Parsing error.");
+
+        if(Name == "Rocket")Ship.Exist = true;
+        Celestial_Bodies.emplace_back(new Celestial_Body(Name, Mass, Values, Radius, this));      
+    }
+    Config.close();
+}
+
 int Celestial::get_position(const string name){
     int Counter = 0;
     for(Attributes i : ObjectTracker){
         if(Celestial_Bodies[i.ID]->Name == name)
-            return Counter;
+            return Counter;//Unsafe return?
         Counter++;
     }
     return -1;

@@ -61,11 +61,13 @@ class Celestial{
     friend void Init_Sim(Celestial*);   
     public:
         Celestial(const std::string);
-        void Add_Object(Celestial*);
+        void Add_Object();
         void Remove_Object();
         void Alter_Object();
         void Change_Settings();
-        void Simulate();
+        void Simulate();        
+        void Upload();
+        void Download();
         int Set_Parameters();        
         void Final_Sim(const std::string);        
         void set_Rocket(const int, const bool);

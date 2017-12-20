@@ -10,9 +10,9 @@
 
 using namespace std;
 
-string str_lower(const string Input){//This function can be replaced by a macro//
+string str_lower(const string Input){
     string Out;
-    vector<char> v(Input.length()+1);
+    char v[Input.length()+1];
     strcpy(&v[0], Input.c_str());
     char *c = &v[0];
     for (int i = 0;c[i] != '\0';i++)
@@ -219,3 +219,30 @@ string verify_pointdouble(){
         IN.append(".0");
     return IN;
 }
+
+bool verify_fileinput(string Input){
+    int DotCount = 0;
+    int eCount = 0;
+    int PlusCount = 0;
+    int MinusCount = 0;
+    int Begin = 0;
+    locale loc;
+    if(Input[0] == '-')
+        Begin = 1;
+    for(int i = Begin; i < Input.length(); i++){
+        char C = Input[i];
+        if(!isdigit(C,loc) && C != '.' && C != 'e' && C != '+' && C != '-')
+            return false;
+        if(C == '.')
+            DotCount++;        
+        if(C == 'e')
+            eCount++;
+        if(C == '+')
+            PlusCount++;
+        if(C == '-')
+            MinusCount++;
+    }
+    if(1 < DotCount || 1 < eCount || 1 < PlusCount || 1 < MinusCount)
+        return false;
+    return true;  
+}   

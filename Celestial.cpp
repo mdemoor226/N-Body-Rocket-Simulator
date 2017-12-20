@@ -6,6 +6,7 @@
 
 #include <time.h>
 #include <fstream>
+#include <stdexcept>
 #include "TrackingSystem.h"
 
 using namespace std;
@@ -40,6 +41,27 @@ void Load_Sim(vector<Celestial> &Sims, Celestial &Active){
     }
     if(fake) cout << "Error, simulation profile does not exist." << endl;
     else cout << "Done." << endl;
+}
+
+void Upload_Sim(Celestial &Active){
+    Active.Upload();
+}
+
+void Download_Sim(vector<Celestial> &Sims, Celestial &Active){
+    cout << "Downloading a new simulation profile will overwrite the current one. Is this ok?\n";
+    if(yes_no() == "no") return;
+    while(true){
+        try{
+            Active.Download();
+            Save_Sim(Sims, Active);
+            break;
+        }
+        catch(const exception &e){
+            cerr << "Error, " << e.what() << endl;
+            cout << "Try again?" << endl;
+            if(yes_no() == "no")break;
+        }
+    }
 }
 
 void Add_Sim(vector<Celestial> &Sims){
@@ -125,7 +147,7 @@ bool exit(Celestial &Active){
         return false;
     }
     
-    //Ask user to specify a target planet//
+    //Ask user to specify a target planet//Forbid user from specifying Rocket as Target Planet/Object
     string Target;
     cout << "Please specify a Target Planet/Object to shoot for.\n";
     while(true){
@@ -156,7 +178,7 @@ bool exit(Celestial &Active){
     Sim_Param Final = Active.get_Parameters();
     ofstream Config("Simulation.conf", ios::out);   
     if(!Config){
-        cerr << "Error, could not open file to upload simulation profile to. Exiting program." << endl;
+        cerr << "Error, could not open file to upload simulation profile to." << endl;
         return false;
     }
     
@@ -198,7 +220,7 @@ int main(){
         else if(In == "set-s")
             Active_Sim.Set_Parameters();
         else if(In == "add")
-            Active_Sim.Add_Object(&Active_Sim);  
+            Active_Sim.Add_Object();  
         else if(In == "remove")
             Active_Sim.Remove_Object();
         else if(In == "display")
@@ -223,8 +245,13 @@ int main(){
             View_Sims(Sims);
         else if(In == "clear")
             system("clear");
+        else if(In == "upload")
+            Upload_Sim(Active_Sim);
+        else if(In == "download")
+            Download_Sim(Sims, Active_Sim);
         else if(In == "help")
-            cout << "View      : Display a list of current simulation profiles.\nNew       : Create a new simulation profile.\n"
+            cout << "View      : Display a list of current simulation profiles.\nNew       : Create a new simulation profile.\nUpload    : Upload a simulation profile.\n"
+                    "Download  : Download a simulation profile.\nClear     : Clear the screen.\n"
                     "Delete    : Delete a simulation profile.\nSave      : Save the current simulation profile.\nLoad      : Load in a different simulation profile.\n"
                     "Add       : Add objects to the system.\nRemove    : Remove an object from the system.\n"
                     "Alter     : Change the values/attributes of an object.\nDisplay   : Display the attributes of a specific object.\n"

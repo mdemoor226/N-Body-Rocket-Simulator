@@ -18,11 +18,8 @@
 using namespace std;
 
 Celestial_Body::Celestial_Body(const string name, const float mass, const Attributes Cel, const float radius, Celestial* celestialptr)
-                : Name(name), Mass(mass), Values(Cel), Radius(radius), Celestial_Vec(celestialptr){
+                : Name(name), Mass(mass), Values(Cel), Radius(radius), Celestial_Vec(celestialptr), Start(Cel), S_Mass(mass), S_Radius(radius){
     Values.ID = celestialptr->SpaceCount;
-    Start = Cel;
-    S_Mass = mass;
-    S_Radius = radius;
     Celestial_Vec->ObjectTracker.push_back(Values);
     Status = "Intact";
     Celestial_Vec->SpaceCount++;
@@ -71,7 +68,7 @@ void Celestial_Body::update_attributes(){
         if(Body->Name == "Rocket") Rocket_Cnt = Count;
         Count++;
     }
-    if(Rocket_Cnt != -1){//Needs Verification
+    if(Rocket_Cnt != -1){//Needs Verification//Might be a bug here
         if(Celestial_Vec->Celestial_Bodies[Rocket_Cnt]->Status == "Destroyed"){
             if(Celestial_Vec->get_Rocket(0)){
                 Celestial_Vec->set_Rocket(0, false);
@@ -191,12 +188,12 @@ void* Interface(void *User){
 	string IN;
 	while(*UI != -1){
 		cin >> IN;
-		if(str_lower(IN) == "abort"){
+		if(str_lower(IN) == "abort" && *UI != -1){
 			*UI = DBL_MAX;
 			cout << "Aborted" << endl;
 			break;
 		}
-		if(str_lower(IN) == "view") cout << "Current sim time: " << *UI << " seconds " << endl;
+		if(str_lower(IN) == "view" && *UI != -1) cout << "Current sim time: " << *UI << " seconds " << endl;
 	}
 	
 	pthread_exit(NULL);
@@ -217,7 +214,7 @@ c[16] = 1408.0/2565.0; c[17] = 2197.0/4104.0; c[18] = 0.2; c[19] = 16.0/135.0;
 c[20] = 6656.0/12825.0; c[21] = 28561.0/56430.0; c[22] = 9.0/50.0; c[23] = 2.0/55.0; 
 double R, D, hnext, Rad, Dist;
 bool Trigger, Last;
-int Control, i, j, Size;
+int i, j, Size;
 int Rocketplace = -1; int Launchplace = -1;
 Attributes C, T, RocketShip, Start;
 
@@ -325,7 +322,6 @@ while(t<Wait){//This code cannot be parallelized//
     i = 0;
     Size = Tracker.size();
     while(i < Size){//This code can be parallelized//
-        Control = 1;
         C = Tracker[i];
         j = i + 1;
         while(j<Size){
@@ -363,19 +359,18 @@ while(t<Wait){//This code cannot be parallelized//
                    K1.erase(K1.begin() + i); K1Copy.pop_back(); K2Copy.pop_back(); K2.erase(K2.begin() + i); K3.erase(K3.begin() + i); K3Copy.pop_back();K4.erase(K4.begin() + i);
                    K4Copy.pop_back(); K5.erase(K5.begin() + i); K5Copy.pop_back(); K6.erase(K6.begin() + i); Input.pop_back(); Result.pop_back(); Correction.pop_back();
                    Size = Tracker.size();
-                   Control = 0;
+                   i--;
                    break;
                 }                 
             }
             else
                j++;
         }
-        if(Control)
-           i++;
+        i++;
     } 
 }
 
-if(Fire){//if(0<Wait){
+if(Fire){
     //Check to see if Rocket/Launch Planet is still intact//
     if(Launchplace != -1){
         Celestial_Vec->Celestial_Bodies[Tracker[Launchplace].ID]->Mass -= Celestial_Vec->Celestial_Bodies[RocketShip.ID]->Mass;
@@ -385,8 +380,8 @@ if(Fire){//if(0<Wait){
         RocketShip.Rz = RocketShip.Rz - Start.Rz + Tracker[Launchplace].Rz;
         
         RocketShip.Vx = RocketShip.Vx - Start.Vx + Tracker[Launchplace].Vx;
-        RocketShip.Vx = RocketShip.Vx - Start.Vx + Tracker[Launchplace].Vx;
-        RocketShip.Vx = RocketShip.Vx - Start.Vx + Tracker[Launchplace].Vx;
+        RocketShip.Vy = RocketShip.Vy - Start.Vy + Tracker[Launchplace].Vy;
+        RocketShip.Vz = RocketShip.Vz - Start.Vz + Tracker[Launchplace].Vz;
         //Reinsert RocketShip into ObjectTracker//
         Tracker.insert(Tracker.begin() + Rocketplace, RocketShip);//Consider replacing with push_back//
         K1.clear(); K1.shrink_to_fit(); K1 = Tracker;
@@ -397,7 +392,7 @@ if(Fire){//if(0<Wait){
         K6.clear(); K6.shrink_to_fit(); K6 = Tracker;        
         cout << "Launching Rocket..." << endl;
     }
-    else cout << "Launch Planet and Rocket were destroyed. Aborting Rocket Launch..." << endl;
+    else cout << "Launch Planet and Rocket were destroyed. Rocket Launch aborted." << endl;
 }
 
 //2nd Simulation Loop Post Rocket Launch//
@@ -452,7 +447,6 @@ while(t<Time){
     i = 0;
     Size = Tracker.size();
     while(i < Size){
-        Control = 1;
         C = Tracker[i];
         j = i + 1;
         while(j<Size){
@@ -483,15 +477,14 @@ while(t<Time){
                    K1.erase(K1.begin() + i); K1Copy.pop_back(); K2Copy.pop_back(); K2.erase(K2.begin() + i); K3.erase(K3.begin() + i); K3Copy.pop_back();K4.erase(K4.begin() + i);
                    K4Copy.pop_back(); K5.erase(K5.begin() + i); K5Copy.pop_back(); K6.erase(K6.begin() + i); Input.pop_back(); Result.pop_back(); Correction.pop_back();
                    Size = Tracker.size();
-                   Control = 0;
+                   i--;
                    break;
                 }                 
             }
             else
                j++;
         }
-        if(Control)
-           i++;
+        i++;
     } 
 }
 if(t == DBL_MAX) Celestial_Vec->Celestial_Bodies = Temp;
@@ -576,7 +569,7 @@ Position Celestial_Body::Acceleration(vector<Attributes>& Alt, int Num){
             Rcurr.Ry = Alt[Curr].Ry;
             Rcurr.Rz = Alt[Curr].Rz;
             Result = Result + Calculations(Rnum, Rcurr, Celestial_Vec->Celestial_Bodies[Alt[Curr].ID]->Mass);
-            }
+        }
         Curr++;
     }       
     return Result;
@@ -615,14 +608,12 @@ Attributes Celestial_Body::Momentum(Attributes One, Attributes Two){
 }
 
 void Celestial_Body::collision(const double t, vector<Attributes> &Tracker){
-     int Control;
      double R,D;
      Attributes C, T;
      int i = 0;
      int j;
      int Size = Tracker.size();
      while(i < Size){
-         Control = 0;
          C = Tracker[i];
          j = i + 1;
          while(j<Size){
@@ -647,15 +638,14 @@ void Celestial_Body::collision(const double t, vector<Attributes> &Tracker){
                     //Remove C//
                     Tracker.erase(Tracker.begin() + i);
                     Size = Tracker.size();
-                    Control = 1;
+                    i--;
                     break;
                  }                 
              }
              else
                 j++;
          }
-         if(Control == 0)
-            i++;
+         i++;
      }        
 }
 
@@ -684,7 +674,7 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
     c[20] = 6656.0/12825.0; c[21] = 28561.0/56430.0; c[22] = 9.0/50.0; c[23] = 2.0/55.0; 
     double R, D, hnext, Rad, Dist, TrackTime; double Distance = DBL_MAX; 
     bool Trigger, Last; bool Tracking = true;;
-    int Control, i, j, Size, Rocket_ID, Target_ID;
+    int i, j, Size, Rocket_ID, Target_ID;
     int Rocketplace = -1; int Launchplace = -1; int Targetplace = -1; 
     Attributes C, T, RocketShip, Start;
 
@@ -726,7 +716,7 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
         
     }        
     if(Targetplace == -1) cout << "Target destroyed. No longer tracking distance from Rocket to Target Planet." << endl;
-    if(Fire){
+    if(Fire){//Room for a bug here if Rocket was created before launch or target planets
         RocketShip = Tracker[Rocketplace];
         Start = Tracker[Launchplace];
         Celestial_Vec->Celestial_Bodies[Tracker[Launchplace].ID]->Mass += Celestial_Vec->Celestial_Bodies[Tracker[Rocketplace].ID]->Mass;
@@ -791,7 +781,6 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
         i = 0;
         Size = Tracker.size();
         while(i < Size){//This code can be parallelized//
-            Control = 1;
             C = Tracker[i];
             j = i + 1;
             while(j<Size){
@@ -833,19 +822,18 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
                        K1.erase(K1.begin() + i); K1Copy.pop_back(); K2Copy.pop_back(); K2.erase(K2.begin() + i); K3.erase(K3.begin() + i); K3Copy.pop_back();K4.erase(K4.begin() + i);
                        K4Copy.pop_back(); K5.erase(K5.begin() + i); K5Copy.pop_back(); K6.erase(K6.begin() + i); Input.pop_back(); Result.pop_back(); Correction.pop_back();
                        Size = Tracker.size();
-                       Control = 0;
+                       i--;
                        break;
                     }                 
                 }
                 else
                    j++;
             }
-            if(Control)
-               i++;
+            i++;
         } 
     }
 
-    if(Fire){//if(0<Wait){
+    if(Fire){
         //Check to see if Rocket/Launch Planet/Target is still intact//
         if(Launchplace != -1){
             Celestial_Vec->Celestial_Bodies[Tracker[Launchplace].ID]->Mass -= Celestial_Vec->Celestial_Bodies[RocketShip.ID]->Mass;
@@ -855,8 +843,8 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
             RocketShip.Rz = RocketShip.Rz - Start.Rz + Tracker[Launchplace].Rz;
 
             RocketShip.Vx = RocketShip.Vx - Start.Vx + Tracker[Launchplace].Vx;
-            RocketShip.Vx = RocketShip.Vx - Start.Vx + Tracker[Launchplace].Vx;
-            RocketShip.Vx = RocketShip.Vx - Start.Vx + Tracker[Launchplace].Vx;
+            RocketShip.Vy = RocketShip.Vy - Start.Vy + Tracker[Launchplace].Vy;
+            RocketShip.Vz = RocketShip.Vz - Start.Vz + Tracker[Launchplace].Vz;
             //Reinsert RocketShip into ObjectTracker//
             Tracker.insert(Tracker.begin() + Rocketplace, RocketShip);//Consider replacing with push_back//
             //Update other vectors...
@@ -874,7 +862,7 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
             }
         }
         else{
-            cout << "Launch Planet and Rocket were destroyed. Aborting Rocket Launch..." << endl;
+            cout << "Launch Planet and Rocket were destroyed. Rocket Launch aborted." << endl;
             Tracking = false;
         }
     }
@@ -942,7 +930,6 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
         i = 0;
         Size = Tracker.size();
         while(i < Size){
-            Control = 1;
             C = Tracker[i];
             j = i + 1;          
             while(j<Size){
@@ -996,15 +983,14 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
                        K1.erase(K1.begin() + i); K1Copy.pop_back(); K2Copy.pop_back(); K2.erase(K2.begin() + i); K3.erase(K3.begin() + i); K3Copy.pop_back();K4.erase(K4.begin() + i);
                        K4Copy.pop_back(); K5.erase(K5.begin() + i); K5Copy.pop_back(); K6.erase(K6.begin() + i); Input.pop_back(); Result.pop_back(); Correction.pop_back();
                        Size = Tracker.size();
-                       Control = 0;
+                       i--;
                        break;
                     }                 
                 }
                 else
                    j++;
             }
-            if(Control)
-               i++;
+            i++;
         }                  
     }
 
@@ -1015,7 +1001,7 @@ void Celestial_Body::Final_Sim(double Time, double h, double hmax, double hmin, 
         print_attributes(Track, Celestial_Vec->Celestial_Bodies[Track.ID]->Name, Celestial_Vec->Celestial_Bodies[Track.ID]->Mass, Celestial_Vec->Celestial_Bodies[Track.ID]->Radius);
     }
     if(Distance < DBL_MAX){
-        cout << "Closest distance between Rocket and Target in this simulation: " << Distance << " at time " << TrackTime << endl;
+        cout << "Closest distance between Rocket and Target in this simulation: " << Distance << " at time " << TrackTime + Wait << endl;
         if(Distance < Celestial_Vec->Celestial_Bodies[Rocket_ID]->Radius + Celestial_Vec->Celestial_Bodies[Target_ID]->Radius)
             cout << "Rocket hit Target. Congratulations." << endl;
     }

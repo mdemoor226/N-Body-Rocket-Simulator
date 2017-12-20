@@ -164,7 +164,7 @@ void Final_Sim(double Time, double h, double hmax, double hmin, double e, double
     c[20] = 6656.0/12825.0; c[21] = 28561.0/56430.0; c[22] = 9.0/50.0; c[23] = 2.0/55.0; 
     double R, D, hnext, Rad, Dist; 
     bool Trigger, Last; bool Tracking = true;;
-    int Control, i, j, Size, Rocket_ID, Target_ID;
+    int i, j, Size, Rocket_ID, Target_ID;
     int Rocketplace = -1; int Launchplace = -1; int Targetplace = -1; 
     Attributes C, T, RocketShip, Start;
     double t = 0.0;
@@ -262,7 +262,6 @@ void Final_Sim(double Time, double h, double hmax, double hmin, double e, double
         i = 0;
         Size = Tracker.size();
         while(i < Size){//This code can be parallelized//
-            Control = 1;
             C = Tracker[i];
             j = i + 1;
             while(j<Size){
@@ -302,15 +301,14 @@ void Final_Sim(double Time, double h, double hmax, double hmin, double e, double
                        K1.erase(K1.begin() + i); K1Copy.pop_back(); K2Copy.pop_back(); K2.erase(K2.begin() + i); K3.erase(K3.begin() + i); K3Copy.pop_back();K4.erase(K4.begin() + i);
                        K4Copy.pop_back(); K5.erase(K5.begin() + i); K5Copy.pop_back(); K6.erase(K6.begin() + i); Input.pop_back(); Result.pop_back(); Correction.pop_back();
                        Size = Tracker.size();
-                       Control = 0;
+                       i--;
                        break;
                     }                 
                 }
                 else
                    j++;
             }
-            if(Control)
-               i++;
+            i++;
         } 
     }
 
@@ -325,8 +323,8 @@ void Final_Sim(double Time, double h, double hmax, double hmin, double e, double
             RocketShip.Rz = RocketShip.Rz - Start.Rz + Tracker[Launchplace].Rz;
 
             RocketShip.Vx = RocketShip.Vx - Start.Vx + Tracker[Launchplace].Vx;
-            RocketShip.Vx = RocketShip.Vx - Start.Vx + Tracker[Launchplace].Vx;
-            RocketShip.Vx = RocketShip.Vx - Start.Vx + Tracker[Launchplace].Vx;
+            RocketShip.Vy = RocketShip.Vy - Start.Vy + Tracker[Launchplace].Vy;
+            RocketShip.Vz = RocketShip.Vz - Start.Vz + Tracker[Launchplace].Vz;
             //Reinsert RocketShip into ObjectTracker//
             Tracker.insert(Tracker.begin() + Rocketplace, RocketShip);//Consider replacing with push_back//
             //Update other vectors...
@@ -405,7 +403,6 @@ void Final_Sim(double Time, double h, double hmax, double hmin, double e, double
         i = 0;
         Size = Tracker.size();
         while(i < Size){
-            Control = 1;
             C = Tracker[i];
             j = i + 1;          
             while(j<Size){
@@ -453,15 +450,14 @@ void Final_Sim(double Time, double h, double hmax, double hmin, double e, double
                        K1.erase(K1.begin() + i); K1Copy.pop_back(); K2Copy.pop_back(); K2.erase(K2.begin() + i); K3.erase(K3.begin() + i); K3Copy.pop_back();K4.erase(K4.begin() + i);
                        K4Copy.pop_back(); K5.erase(K5.begin() + i); K5Copy.pop_back(); K6.erase(K6.begin() + i); Input.pop_back(); Result.pop_back(); Correction.pop_back();
                        Size = Tracker.size();
-                       Control = 0;
+                       i--;
                        break;
                     }                 
                 }
                 else
                    j++;
             }
-            if(Control)
-               i++;
+            i++;
         }                  
     }
     
